@@ -26,7 +26,7 @@ private const val TOP_SPREAD_FACTOR = 0.4f
 private const val BOTTOM_START_SPREAD_FACTOR = 0.25f
 private const val BOTTOM_END_SPREAD_FACTOR = 0.1f
 private const val METABALL_HANDLER_FACTOR = 2.4f
-private const val METABALL_MAX_DISTANCE = 100f
+private const val METABALL_MAX_DISTANCE = 15f
 @Composable
 fun FluidSlider(
     modifier: Modifier = Modifier,
@@ -36,8 +36,8 @@ fun FluidSlider(
     startText: String = "0",
     endText: String = "100",
     bubbleText: String? = null,
-    barColor: Color = Color(0xFF6168E7),
-    bubbleColor: Color = Color.Green,
+    barColor: Color = Color(0xFF4635B1),
+    bubbleColor: Color = Color(0xFF4635B1),
     barTextColor: Color = Color.Green,
     bubbleTextColor: Color = Color.Black,
     animationDuration: Int = 400,
@@ -227,16 +227,11 @@ fun FluidSlider(
 
         // Draw metaball and bubble
         val offset = Offset(size.width.toPx() / 2, size.height.toPx() / 2)
-        withTransform({
-            // Move the origin to the bottom-left corner of this canvas
-            // so (0,0) is bottom-left instead of top-left.
 
-
-        }) {
         drawMetaball(
             drawScope = this,
-            circle1 = Offset(x = bubbleX, y = bubbleY),
-            circle2 = Offset(x = bubbleX, y = bubbleY + metaballRiseDistance),
+            circle1 = Offset(x = bubbleX, y = bubbleY + (barHeightPx * 2)),
+            circle2 = Offset(x = bubbleX, y = bubbleY - metaballRiseDistance + (barHeightPx * 2)), // Place circle2 above circle1
             radius1 = labelDiameter / 2,
             radius2 = touchDiameter / 2,
             handleRate = METABALL_HANDLER_FACTOR,
@@ -245,17 +240,30 @@ fun FluidSlider(
             bottomStartSpreadFactor = BOTTOM_START_SPREAD_FACTOR,
             bottomEndSpreadFactor = BOTTOM_END_SPREAD_FACTOR,
             riseRatio = if (touching) 1f else 0f
-        )}
+        )
 
-        // Draw bubble text
+
+
+// Draw bubble text
         val bubbleTextContent = bubbleText ?: (position * 100).toInt().toString()
         val bubbleTextResult = textMeasurer.measure(bubbleTextContent, textStyle.copy(color = bubbleTextColor))
+
+        val bubbleCenterX = bubbleX
+        val bubbleCenterY = (bubbleY - bubbleTextResult.size.height / 2) + (100)
+        val bubbleBackgroundRadius = max(bubbleTextResult.size.width, bubbleTextResult.size.height) * 1.6f // Adjust radius to fit text
+
+        drawCircle(
+            color = Color.White, // Background color
+            radius = bubbleBackgroundRadius,
+            center = Offset(x = bubbleCenterX, y = bubbleCenterY)
+        )
+
         drawText(
             textMeasurer = textMeasurer,
             text = bubbleTextContent,
             topLeft = Offset(
                 x = bubbleX - bubbleTextResult.size.width / 2,
-                y = bubbleY - bubbleTextResult.size.height / 2
+                y = (bubbleY - bubbleTextResult.size.height / 2) + (100)
             ),
             style = textStyle.copy(color = bubbleTextColor)
         )

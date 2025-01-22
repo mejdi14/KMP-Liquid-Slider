@@ -45,7 +45,7 @@ fun App() {
         Column {
             Spacer(Modifier.height(100.dp))
             FluidSlider(
-                modifier = Modifier.height(200.dp).fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 value = 0.5f,
                 onValueChange = { newValue ->
                     // Handle value change
