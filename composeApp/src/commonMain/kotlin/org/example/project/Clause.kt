@@ -34,7 +34,7 @@ fun FluidSlider(
     onValueChange: (Float) -> Unit,
     size: SliderSize = SliderSize.NORMAL,
     startText: String = "0",
-    endText: String = "100",
+    endText: String = "10",
     bubbleText: String? = null,
     barColor: Color = Color(0xFF4635B1),
     bubbleColor: Color = Color(0xFF4635B1),
@@ -230,8 +230,8 @@ fun FluidSlider(
 
         drawMetaball(
             drawScope = this,
-            circle1 = Offset(x = bubbleX, y = bubbleY + (barHeightPx * 2)),
-            circle2 = Offset(x = bubbleX, y = bubbleY - metaballRiseDistance + (barHeightPx * 2)), // Place circle2 above circle1
+            circle1 = Offset(x = bubbleX, y = bubbleY + 262),
+            circle2 = Offset(x = bubbleX, y = bubbleY - metaballRiseDistance + 262), // Place circle2 above circle1
             radius1 = labelDiameter / 2,
             radius2 = touchDiameter / 2,
             handleRate = METABALL_HANDLER_FACTOR,
@@ -245,7 +245,7 @@ fun FluidSlider(
 
 
 // Draw bubble text
-        val bubbleTextContent = bubbleText ?: (position * 100).toInt().toString()
+        val bubbleTextContent = bubbleText ?: (position * 10).toInt().toString()
         val bubbleTextResult = textMeasurer.measure(bubbleTextContent, textStyle.copy(color = bubbleTextColor))
 
         val bubbleCenterX = bubbleX

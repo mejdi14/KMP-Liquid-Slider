@@ -6,6 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -44,14 +45,16 @@ fun App() {
     MaterialTheme {
         Column {
             Spacer(Modifier.height(100.dp))
-            FluidSlider(
-                modifier = Modifier.fillMaxWidth(),
-                value = 0.5f,
-                onValueChange = { newValue ->
-                    // Handle value change
-                },
-                size = SliderSize.NORMAL
-            )
+            Box(Modifier.fillMaxWidth()) {
+                FluidSlider(
+                    modifier = Modifier.align(Alignment.Center),
+                    value = 0.5f,
+                    onValueChange = { newValue ->
+                        // Handle value change
+                    },
+                    size = SliderSize.NORMAL
+                )
+            }
         }
     }
 }
