@@ -1,18 +1,21 @@
 package org.example.project
 
 import androidx.compose.animation.core.Spring
-
-
-
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
@@ -28,16 +31,16 @@ import kotlin.math.*
 //      (same names & values)
 // ------------------------------
 private const val BAR_CORNER_RADIUS = 12
-private const val BAR_VERTICAL_OFFSET = 1.5f
+private const val BAR_VERTICAL_OFFSET = 1.2f
 private const val BAR_INNER_HORIZONTAL_OFFSET = 0f
 
 private const val SLIDER_WIDTH = 4
 private const val SLIDER_HEIGHT = 1 + BAR_VERTICAL_OFFSET
 
-private const val TOP_CIRCLE_DIAMETER = 1f
-private const val BOTTOM_CIRCLE_DIAMETER = 10f
+private const val TOP_CIRCLE_DIAMETER = 0.8f
+private const val BOTTOM_CIRCLE_DIAMETER = 25f
 private const val TOUCH_CIRCLE_DIAMETER = 1f
-private const val LABEL_CIRCLE_DIAMETER = 10f
+private const val LABEL_CIRCLE_DIAMETER = 1f
 
 private const val ANIMATION_DURATION = 400
 private const val TOP_SPREAD_FACTOR = 0.4f
@@ -60,7 +63,7 @@ private const val INITIAL_POSITION = 0.5f
  * - SMALL = 40dp bar height
  */
 enum class FluidSliderSize(val value: Int, val width: Int) {
-    NORMAL(56, 300),
+    NORMAL(48, 300),
     SMALL(40, 300)
 }
 
@@ -81,7 +84,7 @@ fun FluidSlider(
 
     // Colors
     barColor: Color = Color(0xFF6168E7),
-    bubbleColor: Color = Color.White,
+    bubbleColor: Color = Color(0xFF6168E7),
     barTextColor: Color = Color.White,
     bubbleTextColor: Color = Color.Black,
 
@@ -101,7 +104,7 @@ fun FluidSlider(
     val barHeightPx = with(density) { size.value.dp.toPx() }
 
     // "desiredWidth" = barHeight * SLIDER_WIDTH
-    val desiredWidthPx = (barHeightPx * SLIDER_WIDTH)
+    val desiredWidthPx = with(density) { size.width.dp.toPx() }
     // "desiredHeight" = barHeight * SLIDER_HEIGHT
     val desiredHeightPx = (barHeightPx * SLIDER_HEIGHT)
 
@@ -127,12 +130,15 @@ fun FluidSlider(
     Box(
         modifier = modifier
             .width(with(density) { desiredWidthPx.toDp() })
-            .height(with(density) { desiredHeightPx.toDp() })
+            .height(with(density) { (desiredHeightPx * 1.4f).toDp() })
+            .clip(RectangleShape)
+            .border(2.dp, Color.Red)
     ) {
         // A Canvas to do the drawing
         Canvas(
             modifier = Modifier
                 .matchParentSize()
+                .offset(y = with(density) { (desiredHeightPx * 0.4f).toDp() })
                 .pointerInput(Unit) {
                     detectDragGestures(
                         onDragStart = {
@@ -157,7 +163,8 @@ fun FluidSlider(
                         val w = size.width.dp.toPx() // we have "size.value" is height...
                         val actualWidth = desiredWidthPx // our canvas width
                         val touchDiameterPx = barHeightPx * TOUCH_CIRCLE_DIAMETER
-                        val maxMovement = actualWidth - touchDiameterPx - BAR_INNER_HORIZONTAL_OFFSET
+                        val maxMovement =
+                            actualWidth - touchDiameterPx - BAR_INNER_HORIZONTAL_OFFSET
 
                         // update position
                         val newPos = (sliderPosition + dragAmount.x / maxMovement).coerceIn(0f, 1f)
@@ -184,7 +191,7 @@ fun FluidSlider(
             val topCircleDiameterPx = barHeightPx * TOP_CIRCLE_DIAMETER
             val bottomCircleDiameterPx = barHeightPx * BOTTOM_CIRCLE_DIAMETER
             val touchDiameterPx = barHeightPx * TOUCH_CIRCLE_DIAMETER
-            val labelDiameterPx = barHeightPx - LABEL_CIRCLE_DIAMETER * density.density
+            val labelDiameterPx = barHeightPx * LABEL_CIRCLE_DIAMETER
 
             val metaballMaxDistPx = barHeightPx * METABALL_MAX_DISTANCE
             val metaballRiseDistPx = barHeightPx * METABALL_RISE_DISTANCE
@@ -204,7 +211,8 @@ fun FluidSlider(
             // For the top circle, we also shift it vertically by topCircleAnimOffset * barHeightPx
             // The original code: showLabel => rectTopCircle offset up by metaballRiseDistance
             // We'll replicate that factor in real px:
-            val topRising = topCircleAnimOffset * barHeightPx // or just multiply by barHeightPx if we want
+            val topRising =
+                topCircleAnimOffset * barHeightPx // or just multiply by barHeightPx if we want
             val rectTopCircle = Rect(
                 left = 0f,
                 top = barVerticalOffsetPx + topRising,
@@ -220,19 +228,20 @@ fun FluidSlider(
                 bottom = barVerticalOffsetPx + touchDiameterPx
             )
 
-            // rectLabel (the small bubble on top):
-            val labelOffsetY = barVerticalOffsetPx + (topCircleDiameterPx - labelDiameterPx) / 2f + topRising
-            val rectLabel = Rect(
-                left = 0f,
-                top = labelOffsetY,
-                right = labelDiameterPx,
-                bottom = labelOffsetY + labelDiameterPx
-            )
-
             // Then we do "maxMovement = width - touchRectDiameter - barInnerOffset * 2"
             // and offset them horizontally by: x = barInnerOffset + touchRectDiameter/2 + maxMovement * sliderPosition
             val maxMovement = canvasWidth - touchDiameterPx - BAR_INNER_HORIZONTAL_OFFSET * 2
-            val xPos = BAR_INNER_HORIZONTAL_OFFSET + (touchDiameterPx / 2) + maxMovement * sliderPosition
+            val xPos =
+                BAR_INNER_HORIZONTAL_OFFSET + (touchDiameterPx / 2) + maxMovement * sliderPosition
+            // rectLabel (the small bubble on top):
+            val labelOffsetY = barVerticalOffsetPx + (topCircleDiameterPx - labelDiameterPx) / 2f + topRising
+            val rectLabel = Rect(
+                left = xPos - labelDiameterPx / 2f, // Center horizontally
+                top = labelOffsetY,
+                right = xPos + labelDiameterPx / 2f,
+                bottom = labelOffsetY + labelDiameterPx
+            )
+
 
             offsetRectToPosition(xPos, rectTouch, rectTopCircle, rectBottomCircle, rectLabel)
 
@@ -251,7 +260,8 @@ fun FluidSlider(
                 textAlign = TextAlign.Center
             )
             // start text: left
-            val startTextLayout = textMeasurer.measure(AnnotatedString(startText), style = textStyleBar)
+            val startTextLayout =
+                textMeasurer.measure(AnnotatedString(startText), style = textStyleBar)
             drawText(
                 textMeasurer,
                 startText,
@@ -294,10 +304,10 @@ fun FluidSlider(
             // 4) Draw label circle (small oval)
             // original: `canvas.drawOval(rectLabel, paintLabel)`
             // replicate exactly:
-            drawOval(
+            drawCircle(
                 color = bubbleColor,
-                topLeft = Offset(rectLabel.left, rectLabel.top),
-                size = Size(rectLabel.width, rectLabel.height)
+                radius = labelDiameterPx / 2f,
+                center = Offset(rectLabel.centerX, rectLabel.centerY)
             )
 
             // label text: original uses bubbleText ?: (position*100).toInt()
@@ -307,6 +317,20 @@ fun FluidSlider(
                 style = textStyleBar.copy(color = bubbleTextColor)
             )
             // center in rectLabel
+            // Inside Canvas block:
+
+// 1. Calculate background circle size (70% of main label circle)
+            val backgroundDiameter = labelDiameterPx * 0.8f
+            val backgroundRadius = backgroundDiameter / 2f
+
+// 2. Draw white background circle
+            drawCircle(
+                color = Color.White,
+                radius = backgroundRadius,
+                center = Offset(rectLabel.centerX, rectLabel.centerY)
+            )
+
+// 3. Then draw the text on top (existing code)
             drawText(
                 textMeasurer,
                 labelString,
