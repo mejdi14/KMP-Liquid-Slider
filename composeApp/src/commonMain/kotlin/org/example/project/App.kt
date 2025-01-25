@@ -52,7 +52,7 @@ fun App() {
                     onValueChange = { newValue ->
                         // Handle value change
                     },
-                    size = SliderSize.NORMAL
+                    size = FluidSliderSize.NORMAL
                 )
             }
         }
