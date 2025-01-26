@@ -25,7 +25,6 @@ fun App() {
                     modifier = Modifier.align(Alignment.Center),
                     value = 0.5f,
                     onValueChange = { newValue ->
-                        // Handle value change
                     },
                 )
             }
