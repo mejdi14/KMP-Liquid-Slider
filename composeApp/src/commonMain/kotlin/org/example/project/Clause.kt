@@ -213,7 +213,7 @@ private fun BoxScope.FluidSliderCanvas(
         )
 
         val topRising =
-            topCircleAnimOffset.value * barHeightPx // or just multiply by barHeightPx if we want
+            topCircleAnimOffset.value * barHeightPx
         val rectTopCircle = Rect(
             left = 0f,
             top = barVerticalOffsetPx + topRising,
@@ -234,7 +234,7 @@ private fun BoxScope.FluidSliderCanvas(
         val labelOffsetY =
             barVerticalOffsetPx + (topCircleDiameterPx - labelDiameterPx) / 2f + topRising
         val rectLabel = Rect(
-            left = xPos - labelDiameterPx / 2f, // Center horizontally
+            left = xPos - labelDiameterPx / 2f,
             top = labelOffsetY,
             right = xPos + labelDiameterPx / 2f,
             bottom = labelOffsetY + labelDiameterPx
@@ -279,18 +279,18 @@ private fun BoxScope.FluidSliderCanvas(
 
         val path = Path()
         drawMetaball(
-            path = path,
-            circle1 = rectBottomCircle,
-            circle2 = rectTopCircle,
-            topBorder = barRect.top,
-            riseDistance = metaballRiseDistPx,
-            maxDistance = metaballMaxDistPx,
-            cornerRadius = cornerRadiusPx,
-            topSpreadFactor = TOP_SPREAD_FACTOR,
-            bottomStartSpreadFactor = BOTTOM_START_SPREAD_FACTOR,
-            bottomEndSpreadFactor = BOTTOM_END_SPREAD_FACTOR,
+            metaballPath = path,
+            bottomCircle = rectBottomCircle,
+            topCircle = rectTopCircle,
+            barTopBoundary = barRect.top,
+            metaballRiseLimit = metaballRiseDistPx,
+            maxDistanceBetweenCircles = metaballMaxDistPx,
+            cornerRadiusPx = cornerRadiusPx,
+            topCircleSpreadFactor = TOP_SPREAD_FACTOR,
+            bottomCircleStartSpreadFactor = BOTTOM_START_SPREAD_FACTOR,
+            bottomCircleEndSpreadFactor = BOTTOM_END_SPREAD_FACTOR,
             handleRate = METABALL_HANDLER_FACTOR,
-            color = barColor
+            metaballColor = barColor
         )
 
         drawCircle(
@@ -357,122 +357,132 @@ private data class Rect(
 
 
 private fun DrawScope.drawMetaball(
-    path: Path,
-    circle1: Rect,
-    circle2: Rect,
-    topBorder: Float,
-    riseDistance: Float,
-    maxDistance: Float,
-    cornerRadius: Float,
-    topSpreadFactor: Float,
-    bottomStartSpreadFactor: Float,
-    bottomEndSpreadFactor: Float,
+    metaballPath: Path,
+    bottomCircle: Rect,
+    topCircle: Rect,
+    barTopBoundary: Float,
+    metaballRiseLimit: Float,
+    maxDistanceBetweenCircles: Float,
+    cornerRadiusPx: Float,
+    topCircleSpreadFactor: Float,
+    bottomCircleStartSpreadFactor: Float,
+    bottomCircleEndSpreadFactor: Float,
     handleRate: Float,
-    color: Color
+    metaballColor: Color
 ) {
-    val radius1 = circle1.width / 2f
-    val radius2 = circle2.width / 2f
+    val bottomCircleRadius = bottomCircle.width / 2f
+    val topCircleRadius = topCircle.width / 2f
 
-    if (radius1 == 0f || radius2 == 0f) {
-        return
-    }
+    if (bottomCircleRadius == 0f || topCircleRadius == 0f) return
 
-    val d = getVectorLength(circle1.centerX, circle1.centerY, circle2.centerX, circle2.centerY)
-    if (d > maxDistance || d <= abs(radius1 - radius2)) {
-        return
-    }
-
-    val riseRatio = min(1f, max(0f, topBorder - circle2.top) / riseDistance)
-
-    val u1: Float
-    val u2: Float
-    if (d < radius1 + radius2) {
-        u1 = acos((radius1 * radius1 + d * d - radius2 * radius2) / (2 * radius1 * d))
-        u2 = acos((radius2 * radius2 + d * d - radius1 * radius1) / (2 * radius2 * d))
-    } else {
-        u1 = 0f
-        u2 = 0f
-    }
-
-    val centerXMin = circle2.centerX - circle1.centerX
-    val centerYMin = circle2.centerY - circle1.centerY
-
-    val bottomSpreadDiff = (bottomStartSpreadFactor - bottomEndSpreadFactor)
-    val bottomSpreadFactor = bottomStartSpreadFactor - bottomSpreadDiff * riseRatio
-
-    val fPI = PI.toFloat()
-    val angle1 = atan2(centerYMin, centerXMin)
-    val angle2 = acos((radius1 - radius2) / d)
-    val angle1a = angle1 + u1 + (angle2 - u1) * bottomSpreadFactor
-    val angle1b = angle1 - u1 - (angle2 - u1) * bottomSpreadFactor
-    val angle2a = angle1 + fPI - u2 - (fPI - u2 - angle2) * topSpreadFactor
-    val angle2b = angle1 - fPI + u2 + (fPI - u2 - angle2) * topSpreadFactor
-
-    val p1a = getVector(angle1a, radius1).let {
-        Offset(it.first + circle1.centerX, it.second + circle1.centerY)
-    }
-    val p1b = getVector(angle1b, radius1).let {
-        Offset(it.first + circle1.centerX, it.second + circle1.centerY)
-    }
-
-    val p2a = getVector(angle2a, radius2).let {
-        Offset(it.first + circle2.centerX, it.second + circle2.centerY)
-    }
-    val p2b = getVector(angle2b, radius2).let {
-        Offset(it.first + circle2.centerX, it.second + circle2.centerY)
-    }
-
-    val totalRadius = (radius1 + radius2)
-    val d2Base = min(
-        max(topSpreadFactor, bottomSpreadFactor) * handleRate,
-        getVectorLength(p1a.x, p1a.y, p2a.x, p2a.y) / totalRadius
+    val centerDistance = getVectorLength(
+        bottomCircle.centerX, bottomCircle.centerY,
+        topCircle.centerX, topCircle.centerY
     )
 
-    val d2 = d2Base * min(1f, d * 2 / totalRadius)
-    val r1 = radius1 * d2
-    val r2 = radius2 * d2
+    if (centerDistance > maxDistanceBetweenCircles || centerDistance <= abs(bottomCircleRadius - topCircleRadius)) {
+        return
+    }
 
-    val pi2 = fPI / 2
-    val sp1 = getVector(angle1a - pi2, r1)  // handle offset for p1a
-    val sp2 = getVector(angle2a + pi2, r2)  // handle offset for p2a
-    val sp3 = getVector(angle2b - pi2, r2)  // handle offset for p2b
-    val sp4 = getVector(angle1b + pi2, r1)  // handle offset for p1b
+    val riseRatio = min(1f, max(0f, barTopBoundary - topCircle.top) / metaballRiseLimit)
 
+    val angleOffset1: Float
+    val angleOffset2: Float
 
-    val yOffset = (abs(topBorder - p1a.y) * riseRatio) - 1
-    val fp1a = Offset(p1a.x, p1a.y - yOffset)
-    val fp1b = Offset(p1b.x, p1b.y - yOffset)
+    if (centerDistance < bottomCircleRadius + topCircleRadius) {
+        angleOffset1 = acos(
+            (bottomCircleRadius * bottomCircleRadius + centerDistance * centerDistance - topCircleRadius * topCircleRadius) /
+                    (2 * bottomCircleRadius * centerDistance)
+        )
+        angleOffset2 = acos(
+            (topCircleRadius * topCircleRadius + centerDistance * centerDistance - bottomCircleRadius * bottomCircleRadius) /
+                    (2 * topCircleRadius * centerDistance)
+        )
+    } else {
+        angleOffset1 = 0f
+        angleOffset2 = 0f
+    }
 
-    with(path) {
+    val xDistance = topCircle.centerX - bottomCircle.centerX
+    val yDistance = topCircle.centerY - bottomCircle.centerY
+
+    val bottomCircleSpreadFactorDiff = bottomCircleStartSpreadFactor - bottomCircleEndSpreadFactor
+    val bottomCircleSpreadFactor = bottomCircleStartSpreadFactor - bottomCircleSpreadFactorDiff * riseRatio
+
+    val fullPi = PI.toFloat()
+    val baseAngle = atan2(yDistance, xDistance)
+    val angleDifference = acos((bottomCircleRadius - topCircleRadius) / centerDistance)
+
+    val bottomCircleAngle1 = baseAngle + angleOffset1 + (angleDifference - angleOffset1) * bottomCircleSpreadFactor
+    val bottomCircleAngle2 = baseAngle - angleOffset1 - (angleDifference - angleOffset1) * bottomCircleSpreadFactor
+    val topCircleAngle1 = baseAngle + fullPi - angleOffset2 - (fullPi - angleOffset2 - angleDifference) * topCircleSpreadFactor
+    val topCircleAngle2 = baseAngle - fullPi + angleOffset2 + (fullPi - angleOffset2 - angleDifference) * topCircleSpreadFactor
+
+    val bottomCirclePoint1 = getVector(bottomCircleAngle1, bottomCircleRadius).let {
+        Offset(it.first + bottomCircle.centerX, it.second + bottomCircle.centerY)
+    }
+    val bottomCirclePoint2 = getVector(bottomCircleAngle2, bottomCircleRadius).let {
+        Offset(it.first + bottomCircle.centerX, it.second + bottomCircle.centerY)
+    }
+
+    val topCirclePoint1 = getVector(topCircleAngle1, topCircleRadius).let {
+        Offset(it.first + topCircle.centerX, it.second + topCircle.centerY)
+    }
+    val topCirclePoint2 = getVector(topCircleAngle2, topCircleRadius).let {
+        Offset(it.first + topCircle.centerX, it.second + topCircle.centerY)
+    }
+
+    val combinedRadius = bottomCircleRadius + topCircleRadius
+    val handleOffset = min(
+        max(topCircleSpreadFactor, bottomCircleSpreadFactor) * handleRate,
+        getVectorLength(bottomCirclePoint1.x, bottomCirclePoint1.y, topCirclePoint1.x, topCirclePoint1.y) / combinedRadius
+    )
+
+    val bottomHandleRadius = bottomCircleRadius * handleOffset
+    val topHandleRadius = topCircleRadius * handleOffset
+
+    val quarterPi = fullPi / 2
+    val bottomHandle1 = getVector(bottomCircleAngle1 - quarterPi, bottomHandleRadius)
+    val topHandle1 = getVector(topCircleAngle1 + quarterPi, topHandleRadius)
+    val topHandle2 = getVector(topCircleAngle2 - quarterPi, topHandleRadius)
+    val bottomHandle2 = getVector(bottomCircleAngle2 + quarterPi, bottomHandleRadius)
+
+    val verticalOffset = abs(barTopBoundary - bottomCirclePoint1.y) * riseRatio - 1
+    val adjustedBottomPoint1 = Offset(bottomCirclePoint1.x, bottomCirclePoint1.y - verticalOffset)
+    val adjustedBottomPoint2 = Offset(bottomCirclePoint2.x, bottomCirclePoint2.y - verticalOffset)
+
+    with(metaballPath) {
         reset()
-        moveTo(fp1a.x, fp1a.y + cornerRadius)
-        lineTo(fp1a.x, fp1a.y)
+        moveTo(adjustedBottomPoint1.x, adjustedBottomPoint1.y + cornerRadiusPx)
+        lineTo(adjustedBottomPoint1.x, adjustedBottomPoint1.y)
 
         cubicTo(
-            fp1a.x + sp1.first, fp1a.y + sp1.second,
-            p2a.x + sp2.first, p2a.y + sp2.second,
-            p2a.x, p2a.y
+            adjustedBottomPoint1.x + bottomHandle1.first, adjustedBottomPoint1.y + bottomHandle1.second,
+            topCirclePoint1.x + topHandle1.first, topCirclePoint1.y + topHandle1.second,
+            topCirclePoint1.x, topCirclePoint1.y
         )
 
-        lineTo(circle2.centerX, circle2.centerY)
-        lineTo(p2b.x, p2b.y)
+        lineTo(topCircle.centerX, topCircle.centerY)
+        lineTo(topCirclePoint2.x, topCirclePoint2.y)
+
         cubicTo(
-            p2b.x + sp3.first, p2b.y + sp3.second,
-            fp1b.x + sp4.first, fp1b.y + sp4.second,
-            fp1b.x, fp1b.y
+            topCirclePoint2.x + topHandle2.first, topCirclePoint2.y + topHandle2.second,
+            adjustedBottomPoint2.x + bottomHandle2.first, adjustedBottomPoint2.y + bottomHandle2.second,
+            adjustedBottomPoint2.x, adjustedBottomPoint2.y
         )
 
-        lineTo(fp1b.x, fp1b.y + cornerRadius)
+        lineTo(adjustedBottomPoint2.x, adjustedBottomPoint2.y + cornerRadiusPx)
         close()
     }
 
-    drawPath(path = path, color = color)
+    drawPath(path = metaballPath, color = metaballColor)
     drawOval(
-        color = color,
-        topLeft = Offset(circle2.left, circle2.top),
-        size = Size(circle2.width, circle2.height)
+        color = metaballColor,
+        topLeft = Offset(topCircle.left, topCircle.top),
+        size = Size(topCircle.width, topCircle.height)
     )
 }
+
 
 private fun getVector(radians: Float, length: Float): Pair<Float, Float> {
     val x = cos(radians) * length
