@@ -7,10 +7,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,6 +17,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Setup Node.js (for Kotlin/JS)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
       - name: Build WASM app
         run: ./gradlew :composeApp:wasmJsBrowserDistribution
 
@@ -29,3 +33,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: composeApp/build/dist/wasmJs/productionExecutable
+          keep_files: true
