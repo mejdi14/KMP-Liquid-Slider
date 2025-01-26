@@ -157,7 +157,3 @@ internal fun DrawScope.drawFluidBall(
         size = Size(topCircle.width, topCircle.height)
     )
 }
-
-
-
-

@@ -106,10 +106,8 @@ fun FluidSlider2(
             val barVerticalOffsetPx = barHeightPx * SliderConstants.BAR_VERTICAL_OFFSET
             val rectBar = Rect(0f, barVerticalOffsetPx, desiredWidthPx, barVerticalOffsetPx + barHeightPx)
 
-            // Compute centerY for rectBar
             val barCenterY = (rectBar.top + rectBar.bottom) / 2f
 
-            // Draw the bar
             drawRoundRect(
                 color = barColor,
                 topLeft = Offset(rectBar.left, rectBar.top),
