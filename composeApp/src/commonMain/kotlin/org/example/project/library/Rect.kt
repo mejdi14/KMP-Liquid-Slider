@@ -9,7 +9,7 @@ import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
 
-data class Rect(
+internal data class Rect(
     var left: Float,
     var top: Float,
     var right: Float,
@@ -17,6 +17,7 @@ data class Rect(
 ) {
     val width: Float get() = right - left
     val height: Float get() = bottom - top
+
     val centerX: Float get() = left + width / 2f
     val centerY: Float get() = top + height / 2f
 
