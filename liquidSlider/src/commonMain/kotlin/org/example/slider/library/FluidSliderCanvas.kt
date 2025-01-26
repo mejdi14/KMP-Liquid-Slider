@@ -22,7 +22,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.example.project.FluidSliderSize
 import org.example.project.library.SliderConstants.BAR_CORNER_RADIUS
 import org.example.project.library.SliderConstants.BAR_INNER_HORIZONTAL_OFFSET
 import org.example.project.library.SliderConstants.BAR_VERTICAL_OFFSET
@@ -39,7 +38,7 @@ import org.example.project.library.SliderConstants.TOP_SPREAD_FACTOR
 import org.example.project.library.SliderConstants.TOUCH_CIRCLE_DIAMETER
 
 @Composable
-private fun BoxScope.FluidSliderCanvas(
+internal fun BoxScope.FluidSliderCanvas(
     density: Density,
     desiredHeightPx: Float,
     isDragging: MutableState<Boolean>,
