@@ -201,8 +201,8 @@ private fun BoxScope.FluidSliderCanvas(
         val touchDiameterPx = barHeightPx * TOUCH_CIRCLE_DIAMETER
         val labelDiameterPx = barHeightPx * LABEL_CIRCLE_DIAMETER
 
-        val metaballMaxDistPx = barHeightPx * METABALL_MAX_DISTANCE
-        val metaballRiseDistPx = barHeightPx * METABALL_RISE_DISTANCE
+        val fluidballMaxDistPx = barHeightPx * METABALL_MAX_DISTANCE
+        val fluidballRiseDistPx = barHeightPx * METABALL_RISE_DISTANCE
         val cornerRadiusPx = BAR_CORNER_RADIUS * density.density
 
         val rectBottomCircle = Rect(
@@ -278,19 +278,19 @@ private fun BoxScope.FluidSliderCanvas(
         )
 
         val path = Path()
-        drawMetaball(
-            metaballPath = path,
+        drawFluidball(
+            fluidballPath = path,
             bottomCircle = rectBottomCircle,
             topCircle = rectTopCircle,
             barTopBoundary = barRect.top,
-            metaballRiseLimit = metaballRiseDistPx,
-            maxDistanceBetweenCircles = metaballMaxDistPx,
+            fluidballRiseLimit = fluidballRiseDistPx,
+            maxDistanceBetweenCircles = fluidballMaxDistPx,
             cornerRadiusPx = cornerRadiusPx,
             topCircleSpreadFactor = TOP_SPREAD_FACTOR,
             bottomCircleStartSpreadFactor = BOTTOM_START_SPREAD_FACTOR,
             bottomCircleEndSpreadFactor = BOTTOM_END_SPREAD_FACTOR,
             handleRate = METABALL_HANDLER_FACTOR,
-            metaballColor = barColor
+            fluidballColor = barColor
         )
 
         drawCircle(
@@ -356,19 +356,19 @@ private data class Rect(
 }
 
 
-private fun DrawScope.drawMetaball(
-    metaballPath: Path,
+private fun DrawScope.drawFluidball(
+    fluidballPath: Path,
     bottomCircle: Rect,
     topCircle: Rect,
     barTopBoundary: Float,
-    metaballRiseLimit: Float,
+    fluidballRiseLimit: Float,
     maxDistanceBetweenCircles: Float,
     cornerRadiusPx: Float,
     topCircleSpreadFactor: Float,
     bottomCircleStartSpreadFactor: Float,
     bottomCircleEndSpreadFactor: Float,
     handleRate: Float,
-    metaballColor: Color
+    fluidballColor: Color
 ) {
     val bottomCircleRadius = bottomCircle.width / 2f
     val topCircleRadius = topCircle.width / 2f
@@ -384,7 +384,7 @@ private fun DrawScope.drawMetaball(
         return
     }
 
-    val riseRatio = min(1f, max(0f, barTopBoundary - topCircle.top) / metaballRiseLimit)
+    val riseRatio = min(1f, max(0f, barTopBoundary - topCircle.top) / fluidballRiseLimit)
 
     val angleOffset1: Float
     val angleOffset2: Float
@@ -451,7 +451,7 @@ private fun DrawScope.drawMetaball(
     val adjustedBottomPoint1 = Offset(bottomCirclePoint1.x, bottomCirclePoint1.y - verticalOffset)
     val adjustedBottomPoint2 = Offset(bottomCirclePoint2.x, bottomCirclePoint2.y - verticalOffset)
 
-    with(metaballPath) {
+    with(fluidballPath) {
         reset()
         moveTo(adjustedBottomPoint1.x, adjustedBottomPoint1.y + cornerRadiusPx)
         lineTo(adjustedBottomPoint1.x, adjustedBottomPoint1.y)
@@ -475,9 +475,9 @@ private fun DrawScope.drawMetaball(
         close()
     }
 
-    drawPath(path = metaballPath, color = metaballColor)
+    drawPath(path = fluidballPath, color = fluidballColor)
     drawOval(
-        color = metaballColor,
+        color = fluidballColor,
         topLeft = Offset(topCircle.left, topCircle.top),
         size = Size(topCircle.width, topCircle.height)
     )
