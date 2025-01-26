@@ -278,19 +278,19 @@ private fun BoxScope.FluidSliderCanvas(
         )
 
         val path = Path()
-        drawFluidball(
-            fluidballPath = path,
+        drawFluidBall(
+            fluidBallPath = path,
             bottomCircle = rectBottomCircle,
             topCircle = rectTopCircle,
             barTopBoundary = barRect.top,
-            fluidballRiseLimit = fluidballRiseDistPx,
+            fluidBallRiseLimit = fluidballRiseDistPx,
             maxDistanceBetweenCircles = fluidballMaxDistPx,
             cornerRadiusPx = cornerRadiusPx,
             topCircleSpreadFactor = TOP_SPREAD_FACTOR,
             bottomCircleStartSpreadFactor = BOTTOM_START_SPREAD_FACTOR,
             bottomCircleEndSpreadFactor = BOTTOM_END_SPREAD_FACTOR,
             handleRate = METABALL_HANDLER_FACTOR,
-            fluidballColor = barColor
+            fluidBallColor = barColor
         )
 
         drawCircle(
@@ -356,19 +356,19 @@ private data class Rect(
 }
 
 
-private fun DrawScope.drawFluidball(
-    fluidballPath: Path,
+private fun DrawScope.drawFluidBall(
+    fluidBallPath: Path,
     bottomCircle: Rect,
     topCircle: Rect,
     barTopBoundary: Float,
-    fluidballRiseLimit: Float,
+    fluidBallRiseLimit: Float,
     maxDistanceBetweenCircles: Float,
     cornerRadiusPx: Float,
     topCircleSpreadFactor: Float,
     bottomCircleStartSpreadFactor: Float,
     bottomCircleEndSpreadFactor: Float,
     handleRate: Float,
-    fluidballColor: Color
+    fluidBallColor: Color
 ) {
     val bottomCircleRadius = bottomCircle.width / 2f
     val topCircleRadius = topCircle.width / 2f
@@ -384,7 +384,7 @@ private fun DrawScope.drawFluidball(
         return
     }
 
-    val riseRatio = min(1f, max(0f, barTopBoundary - topCircle.top) / fluidballRiseLimit)
+    val riseRatio = min(1f, max(0f, barTopBoundary - topCircle.top) / fluidBallRiseLimit)
 
     val angleOffset1: Float
     val angleOffset2: Float
@@ -451,7 +451,7 @@ private fun DrawScope.drawFluidball(
     val adjustedBottomPoint1 = Offset(bottomCirclePoint1.x, bottomCirclePoint1.y - verticalOffset)
     val adjustedBottomPoint2 = Offset(bottomCirclePoint2.x, bottomCirclePoint2.y - verticalOffset)
 
-    with(fluidballPath) {
+    with(fluidBallPath) {
         reset()
         moveTo(adjustedBottomPoint1.x, adjustedBottomPoint1.y + cornerRadiusPx)
         lineTo(adjustedBottomPoint1.x, adjustedBottomPoint1.y)
@@ -475,9 +475,9 @@ private fun DrawScope.drawFluidball(
         close()
     }
 
-    drawPath(path = fluidballPath, color = fluidballColor)
+    drawPath(path = fluidBallPath, color = fluidBallColor)
     drawOval(
-        color = fluidballColor,
+        color = fluidBallColor,
         topLeft = Offset(topCircle.left, topCircle.top),
         size = Size(topCircle.width, topCircle.height)
     )
