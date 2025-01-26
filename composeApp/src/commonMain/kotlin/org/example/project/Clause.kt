@@ -7,13 +7,11 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.*
@@ -24,98 +22,66 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
+import org.example.project.library.SliderConstants.ANIMATION_DURATION
+import org.example.project.library.SliderConstants.BAR_CORNER_RADIUS
+import org.example.project.library.SliderConstants.BAR_INNER_HORIZONTAL_OFFSET
+import org.example.project.library.SliderConstants.BAR_VERTICAL_OFFSET
+import org.example.project.library.SliderConstants.BOTTOM_CIRCLE_DIAMETER
+import org.example.project.library.SliderConstants.BOTTOM_END_SPREAD_FACTOR
+import org.example.project.library.SliderConstants.BOTTOM_START_SPREAD_FACTOR
+import org.example.project.library.SliderConstants.INITIAL_POSITION
+import org.example.project.library.SliderConstants.LABEL_CIRCLE_DIAMETER
+import org.example.project.library.SliderConstants.METABALL_HANDLER_FACTOR
+import org.example.project.library.SliderConstants.METABALL_MAX_DISTANCE
+import org.example.project.library.SliderConstants.METABALL_RISE_DISTANCE
+import org.example.project.library.SliderConstants.SLIDER_HEIGHT
+import org.example.project.library.SliderConstants.TEXT_END
+import org.example.project.library.SliderConstants.TEXT_OFFSET
+import org.example.project.library.SliderConstants.TEXT_SIZE
+import org.example.project.library.SliderConstants.TEXT_START
+import org.example.project.library.SliderConstants.TOP_CIRCLE_DIAMETER
+import org.example.project.library.SliderConstants.TOP_SPREAD_FACTOR
+import org.example.project.library.SliderConstants.TOUCH_CIRCLE_DIAMETER
 import kotlin.math.*
 
-// ------------------------------
-//   1) Original "companion object" constants
-//      (same names & values)
-// ------------------------------
-private const val BAR_CORNER_RADIUS = 12
-private const val BAR_VERTICAL_OFFSET = 1.2f
-private const val BAR_INNER_HORIZONTAL_OFFSET = 0f
+data class FluidSliderSize(val height: Int = 60, val width: Int = 300) {
 
-private const val SLIDER_WIDTH = 4
-private const val SLIDER_HEIGHT = 1 + BAR_VERTICAL_OFFSET
-
-private const val TOP_CIRCLE_DIAMETER = 0.8f
-private const val BOTTOM_CIRCLE_DIAMETER = 25f
-private const val TOUCH_CIRCLE_DIAMETER = 1f
-private const val LABEL_CIRCLE_DIAMETER = 1f
-
-private const val ANIMATION_DURATION = 400
-private const val TOP_SPREAD_FACTOR = 0.4f
-private const val BOTTOM_START_SPREAD_FACTOR = 0.25f
-private const val BOTTOM_END_SPREAD_FACTOR = 0.1f
-private const val METABALL_HANDLER_FACTOR = 1.4f
-private const val METABALL_MAX_DISTANCE = 15f
-private const val METABALL_RISE_DISTANCE = 1.4f
-
-private const val TEXT_SIZE = 12
-private const val TEXT_OFFSET = 8
-private const val TEXT_START = "0"
-private const val TEXT_END = "100"
-
-private const val INITIAL_POSITION = 0.5f
-
-/**
- * Sizes that match the original:
- * - NORMAL = 56dp bar height
- * - SMALL = 40dp bar height
- */
-enum class FluidSliderSize(val value: Int, val width: Int) {
-    NORMAL(48, 300),
-    SMALL(40, 300)
 }
 
-/**
- * Compose Multiplatform re‑implementation of the original FluidSlider.
- * It uses the exact same geometry + metaball math from the Java code.
- */
+
 @Composable
 fun FluidSlider(
     modifier: Modifier = Modifier,
-    // The "size" determines barHeight in the same way as the original constructor:
-    size: FluidSliderSize = FluidSliderSize.NORMAL,
+    size: FluidSliderSize = FluidSliderSize(),
 
-    // Start/End/Bubble text
     startText: String = TEXT_START,
     endText: String = TEXT_END,
     bubbleText: String? = null,
 
-    // Colors
     barColor: Color = Color(0xFF6168E7),
     bubbleColor: Color = Color(0xFF6168E7),
     barTextColor: Color = Color.White,
     bubbleTextColor: Color = Color.Black,
 
-    // Position
     value: Float = INITIAL_POSITION,
     onValueChange: (Float) -> Unit,
     onBeginTracking: () -> Unit = {},
     onEndTracking: () -> Unit = {},
 
-    // Animations & text
-    textSizeSp: Float = TEXT_SIZE.toFloat(), // default 12sp
+    textSizeSp: Float = TEXT_SIZE.toFloat(),
     durationMillis: Int = ANIMATION_DURATION
 ) {
-    // The original code uses barHeight = size.value * density
-    // We'll do exactly that:
     val density = LocalDensity.current
-    val barHeightPx = with(density) { size.value.dp.toPx() }
+    val barHeightPx = with(density) { size.height.dp.toPx() }
 
-    // "desiredWidth" = barHeight * SLIDER_WIDTH
     val desiredWidthPx = with(density) { size.width.dp.toPx() }
-    // "desiredHeight" = barHeight * SLIDER_HEIGHT
     val desiredHeightPx = (barHeightPx * SLIDER_HEIGHT)
 
-    // We'll track "position" just like the original, from 0..1
-    var sliderPosition by remember { mutableStateOf(value.coerceIn(0f, 1f)) }
+    var sliderPosition = remember { mutableStateOf(value.coerceIn(0f, 1f)) }
 
-    // We replicate "showLabel" / "hideLabel": top circle rises by "metaballRiseDistance"
-    // We do a simple animateFloatAsState with a spring, or a tween if desired
-    var isDragging by remember { mutableStateOf(false) }
-    val topCircleAnimOffset by animateFloatAsState(
-        targetValue = if (isDragging) -METABALL_RISE_DISTANCE else 0f,
+    var isDragging = remember { mutableStateOf(false) }
+    val topCircleAnimOffset = animateFloatAsState(
+        targetValue = if (isDragging.value) -METABALL_RISE_DISTANCE else 0f,
         animationSpec = spring(
             dampingRatio = 0.6f,
             stiffness = Spring.StiffnessLow
@@ -123,10 +89,8 @@ fun FluidSlider(
         label = "topCircleY"
     )
 
-    // We'll define textMeasurer to replicate "drawText" logic
     val textMeasurer = rememberTextMeasurer()
 
-    // This Box is sized to the "desired" width/height from the original code
     Box(
         modifier = modifier
             .width(with(density) { desiredWidthPx.toDp() })
@@ -134,237 +98,243 @@ fun FluidSlider(
             .clip(RectangleShape)
             .border(2.dp, Color.Red)
     ) {
-        // A Canvas to do the drawing
-        Canvas(
-            modifier = Modifier
-                .matchParentSize()
-                .offset(y = with(density) { (desiredHeightPx * 0.4f).toDp() })
-                .pointerInput(Unit) {
-                    detectDragGestures(
-                        onDragStart = {
-                            isDragging = true
-                            onBeginTracking()
-                        },
-                        onDragEnd = {
-                            isDragging = false
-                            onEndTracking()
-                        },
-                        onDragCancel = {
-                            isDragging = false
-                            onEndTracking()
-                        }
-                    ) { change, dragAmount ->
-                        change.consume()
-
-                        // The original code uses:
-                        //   maxMovement = width - touchRectDiameter - barInnerOffset * 2
-                        // Let's compute:
-                        size
-                        val w = size.width.dp.toPx() // we have "size.value" is height...
-                        val actualWidth = desiredWidthPx // our canvas width
-                        val touchDiameterPx = barHeightPx * TOUCH_CIRCLE_DIAMETER
-                        val maxMovement =
-                            actualWidth - touchDiameterPx - BAR_INNER_HORIZONTAL_OFFSET
-
-                        // update position
-                        val newPos = (sliderPosition + dragAmount.x / maxMovement).coerceIn(0f, 1f)
-                        sliderPosition = newPos
-                        onValueChange(newPos)
-                    }
-                }
-        ) {
-            // The canvas is "desiredWidthPx x desiredHeightPx" in size
-            val canvasWidth = size.width.dp.toPx().coerceAtLeast(desiredWidthPx)
-            val canvasHeight = size.value.dp.toPx().coerceAtLeast(desiredHeightPx)
-
-            // Exactly like onSizeChanged:
-            // rectBar.set(0f, barVerticalOffset, width, barVerticalOffset + barHeight)
-            // rectTopCircle, rectBottomCircle, etc.
-            val barVerticalOffsetPx = barHeightPx * BAR_VERTICAL_OFFSET
-            val barRect = Rect(
-                left = 0f,
-                top = barVerticalOffsetPx,
-                right = canvasWidth,
-                bottom = barVerticalOffsetPx + barHeightPx
-            )
-
-            val topCircleDiameterPx = barHeightPx * TOP_CIRCLE_DIAMETER
-            val bottomCircleDiameterPx = barHeightPx * BOTTOM_CIRCLE_DIAMETER
-            val touchDiameterPx = barHeightPx * TOUCH_CIRCLE_DIAMETER
-            val labelDiameterPx = barHeightPx * LABEL_CIRCLE_DIAMETER
-
-            val metaballMaxDistPx = barHeightPx * METABALL_MAX_DISTANCE
-            val metaballRiseDistPx = barHeightPx * METABALL_RISE_DISTANCE
-            val cornerRadiusPx = BAR_CORNER_RADIUS * density.density
-
-            // We'll keep rectTopCircle, rectBottomCircle
-            // This is their "un-offset" position: (0, barVerticalOffset.. diameter)
-            // Then we shift them horizontally with offsetRectToPosition
-            // and also shift the top circle up/down by the "show/hide" animation
-            val rectBottomCircle = Rect(
-                left = 0f,
-                top = barVerticalOffsetPx,
-                right = bottomCircleDiameterPx,
-                bottom = barVerticalOffsetPx + bottomCircleDiameterPx
-            )
-
-            // For the top circle, we also shift it vertically by topCircleAnimOffset * barHeightPx
-            // The original code: showLabel => rectTopCircle offset up by metaballRiseDistance
-            // We'll replicate that factor in real px:
-            val topRising =
-                topCircleAnimOffset * barHeightPx // or just multiply by barHeightPx if we want
-            val rectTopCircle = Rect(
-                left = 0f,
-                top = barVerticalOffsetPx + topRising,
-                right = topCircleDiameterPx,
-                bottom = barVerticalOffsetPx + topCircleDiameterPx + topRising
-            )
-
-            // For the "touch rect" we won't strictly need it for drawing, but let's replicate:
-            val rectTouch = Rect(
-                left = 0f,
-                top = barVerticalOffsetPx,
-                right = touchDiameterPx,
-                bottom = barVerticalOffsetPx + touchDiameterPx
-            )
-
-            // Then we do "maxMovement = width - touchRectDiameter - barInnerOffset * 2"
-            // and offset them horizontally by: x = barInnerOffset + touchRectDiameter/2 + maxMovement * sliderPosition
-            val maxMovement = canvasWidth - touchDiameterPx - BAR_INNER_HORIZONTAL_OFFSET * 2
-            val xPos =
-                BAR_INNER_HORIZONTAL_OFFSET + (touchDiameterPx / 2) + maxMovement * sliderPosition
-            // rectLabel (the small bubble on top):
-            val labelOffsetY = barVerticalOffsetPx + (topCircleDiameterPx - labelDiameterPx) / 2f + topRising
-            val rectLabel = Rect(
-                left = xPos - labelDiameterPx / 2f, // Center horizontally
-                top = labelOffsetY,
-                right = xPos + labelDiameterPx / 2f,
-                bottom = labelOffsetY + labelDiameterPx
-            )
-
-
-            offsetRectToPosition(xPos, rectTouch, rectTopCircle, rectBottomCircle, rectLabel)
-
-            // 1) Draw bar
-            drawRoundRect(
-                color = barColor,
-                topLeft = Offset(barRect.left, barRect.top),
-                size = Size(barRect.width, barRect.height),
-                cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx)
-            )
-
-            // 2) Draw bar texts (start & end)
-            val textStyleBar = TextStyle(
-                color = barTextColor,
-                fontSize = textSizeSp.sp,
-                textAlign = TextAlign.Center
-            )
-            // start text: left
-            val startTextLayout =
-                textMeasurer.measure(AnnotatedString(startText), style = textStyleBar)
-            drawText(
-                textMeasurer,
-                startText,
-                topLeft = Offset(
-                    x = TEXT_OFFSET * density.density,
-                    y = barRect.top + (barRect.height - startTextLayout.size.height) / 2
-                ),
-                style = textStyleBar
-            )
-            // end text: right
-            val endTextLayout = textMeasurer.measure(AnnotatedString(endText), style = textStyleBar)
-            drawText(
-                textMeasurer,
-                endText,
-                topLeft = Offset(
-                    x = barRect.right - endTextLayout.size.width - TEXT_OFFSET * density.density,
-                    y = barRect.top + (barRect.height - endTextLayout.size.height) / 2
-                ),
-                style = textStyleBar
-            )
-
-            // 3) Draw the metaball bridging the bottom circle & top circle
-            //    (like drawMetaball(canvas, paintBar, pathMetaball, rectBottomCircle, rectTopCircle, rectBar.top) in original)
-            val path = Path()
-            drawMetaball(
-                path = path,
-                circle1 = rectBottomCircle,
-                circle2 = rectTopCircle,
-                topBorder = barRect.top,
-                riseDistance = metaballRiseDistPx,
-                maxDistance = metaballMaxDistPx,
-                cornerRadius = cornerRadiusPx,
-                topSpreadFactor = TOP_SPREAD_FACTOR,
-                bottomStartSpreadFactor = BOTTOM_START_SPREAD_FACTOR,
-                bottomEndSpreadFactor = BOTTOM_END_SPREAD_FACTOR,
-                handleRate = METABALL_HANDLER_FACTOR,
-                color = barColor
-            )
-
-            // 4) Draw label circle (small oval)
-            // original: `canvas.drawOval(rectLabel, paintLabel)`
-            // replicate exactly:
-            drawCircle(
-                color = bubbleColor,
-                radius = labelDiameterPx / 2f,
-                center = Offset(rectLabel.centerX, rectLabel.centerY)
-            )
-
-            // label text: original uses bubbleText ?: (position*100).toInt()
-            val labelString = bubbleText ?: ((sliderPosition * 100).toInt()).toString()
-            val textLayoutLabel = textMeasurer.measure(
-                AnnotatedString(labelString),
-                style = textStyleBar.copy(color = bubbleTextColor)
-            )
-            // center in rectLabel
-            // Inside Canvas block:
-
-// 1. Calculate background circle size (70% of main label circle)
-            val backgroundDiameter = labelDiameterPx * 0.8f
-            val backgroundRadius = backgroundDiameter / 2f
-
-// 2. Draw white background circle
-            drawCircle(
-                color = Color.White,
-                radius = backgroundRadius,
-                center = Offset(rectLabel.centerX, rectLabel.centerY)
-            )
-
-// 3. Then draw the text on top (existing code)
-            drawText(
-                textMeasurer,
-                labelString,
-                topLeft = Offset(
-                    x = rectLabel.centerX - textLayoutLabel.size.width / 2,
-                    y = rectLabel.centerY - textLayoutLabel.size.height / 2
-                ),
-                style = textStyleBar.copy(color = bubbleTextColor)
-            )
-        }
+        FluidSliderCanvas(
+            density,
+            desiredHeightPx,
+            isDragging,
+            onBeginTracking,
+            onEndTracking,
+            size,
+            desiredWidthPx,
+            barHeightPx,
+            sliderPosition,
+            onValueChange,
+            topCircleAnimOffset,
+            barColor,
+            barTextColor,
+            textSizeSp,
+            textMeasurer,
+            startText,
+            endText,
+            bubbleColor,
+            bubbleText,
+            bubbleTextColor
+        )
     }
 
-    // Keep external "value" in sync
     LaunchedEffect(value) {
-        sliderPosition = value.coerceIn(0f, 1f)
+        sliderPosition.value = value.coerceIn(0f, 1f)
     }
 }
 
-/**
- * Exactly matches `offsetRectToPosition(position, vararg rects: RectF)` from the original code:
- * For each rect, shift horizontally so its centerX becomes `position`.
- */
+@Composable
+private fun BoxScope.FluidSliderCanvas(
+    density: Density,
+    desiredHeightPx: Float,
+    isDragging: MutableState<Boolean>,
+    onBeginTracking: () -> Unit,
+    onEndTracking: () -> Unit,
+    size: FluidSliderSize,
+    desiredWidthPx: Float,
+    barHeightPx: Float,
+    sliderPosition: MutableState<Float>,
+    onValueChange: (Float) -> Unit,
+    topCircleAnimOffset: State<Float>,
+    barColor: Color,
+    barTextColor: Color,
+    textSizeSp: Float,
+    textMeasurer: TextMeasurer,
+    startText: String,
+    endText: String,
+    bubbleColor: Color,
+    bubbleText: String?,
+    bubbleTextColor: Color
+) {
+    Canvas(
+        modifier = Modifier
+            .matchParentSize()
+            .offset(y = with(density) { (desiredHeightPx * 0.4f).toDp() })
+            .pointerInput(Unit) {
+                detectDragGestures(
+                    onDragStart = {
+                        isDragging.value = true
+                        onBeginTracking()
+                    },
+                    onDragEnd = {
+                        isDragging.value = false
+                        onEndTracking()
+                    },
+                    onDragCancel = {
+                        isDragging.value = false
+                        onEndTracking()
+                    }
+                ) { change, dragAmount ->
+                    change.consume()
+
+                    size
+                    val w = size.width.dp.toPx() // we have "size.value" is height...
+                    val actualWidth = desiredWidthPx // our canvas width
+                    val touchDiameterPx = barHeightPx * TOUCH_CIRCLE_DIAMETER
+                    val maxMovement =
+                        actualWidth - touchDiameterPx - BAR_INNER_HORIZONTAL_OFFSET
+
+                    val newPos =
+                        (sliderPosition.value + dragAmount.x / maxMovement).coerceIn(0f, 1f)
+                    sliderPosition.value = newPos
+                    onValueChange(newPos)
+                }
+            }
+    ) {
+        val canvasWidth = size.width.dp.toPx().coerceAtLeast(desiredWidthPx)
+        val canvasHeight = size.height.dp.toPx().coerceAtLeast(desiredHeightPx)
+
+        val barVerticalOffsetPx = barHeightPx * BAR_VERTICAL_OFFSET
+        val barRect = Rect(
+            left = 0f,
+            top = barVerticalOffsetPx,
+            right = canvasWidth,
+            bottom = barVerticalOffsetPx + barHeightPx
+        )
+
+        val topCircleDiameterPx = barHeightPx * TOP_CIRCLE_DIAMETER
+        val bottomCircleDiameterPx = barHeightPx * BOTTOM_CIRCLE_DIAMETER
+        val touchDiameterPx = barHeightPx * TOUCH_CIRCLE_DIAMETER
+        val labelDiameterPx = barHeightPx * LABEL_CIRCLE_DIAMETER
+
+        val metaballMaxDistPx = barHeightPx * METABALL_MAX_DISTANCE
+        val metaballRiseDistPx = barHeightPx * METABALL_RISE_DISTANCE
+        val cornerRadiusPx = BAR_CORNER_RADIUS * density.density
+
+        val rectBottomCircle = Rect(
+            left = 0f,
+            top = barVerticalOffsetPx,
+            right = bottomCircleDiameterPx,
+            bottom = barVerticalOffsetPx + bottomCircleDiameterPx
+        )
+
+        val topRising =
+            topCircleAnimOffset.value * barHeightPx // or just multiply by barHeightPx if we want
+        val rectTopCircle = Rect(
+            left = 0f,
+            top = barVerticalOffsetPx + topRising,
+            right = topCircleDiameterPx,
+            bottom = barVerticalOffsetPx + topCircleDiameterPx + topRising
+        )
+
+        val rectTouch = Rect(
+            left = 0f,
+            top = barVerticalOffsetPx,
+            right = touchDiameterPx,
+            bottom = barVerticalOffsetPx + touchDiameterPx
+        )
+
+        val maxMovement = canvasWidth - touchDiameterPx - BAR_INNER_HORIZONTAL_OFFSET * 2
+        val xPos =
+            BAR_INNER_HORIZONTAL_OFFSET + (touchDiameterPx / 2) + maxMovement * sliderPosition.value
+        val labelOffsetY =
+            barVerticalOffsetPx + (topCircleDiameterPx - labelDiameterPx) / 2f + topRising
+        val rectLabel = Rect(
+            left = xPos - labelDiameterPx / 2f, // Center horizontally
+            top = labelOffsetY,
+            right = xPos + labelDiameterPx / 2f,
+            bottom = labelOffsetY + labelDiameterPx
+        )
+
+
+        offsetRectToPosition(xPos, rectTouch, rectTopCircle, rectBottomCircle, rectLabel)
+
+        drawRoundRect(
+            color = barColor,
+            topLeft = Offset(barRect.left, barRect.top),
+            size = Size(barRect.width, barRect.height),
+            cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx)
+        )
+
+        val textStyleBar = TextStyle(
+            color = barTextColor,
+            fontSize = textSizeSp.sp,
+            textAlign = TextAlign.Center
+        )
+        val startTextLayout =
+            textMeasurer.measure(AnnotatedString(startText), style = textStyleBar)
+        drawText(
+            textMeasurer,
+            startText,
+            topLeft = Offset(
+                x = TEXT_OFFSET * density.density,
+                y = barRect.top + (barRect.height - startTextLayout.size.height) / 2
+            ),
+            style = textStyleBar
+        )
+        val endTextLayout = textMeasurer.measure(AnnotatedString(endText), style = textStyleBar)
+        drawText(
+            textMeasurer,
+            endText,
+            topLeft = Offset(
+                x = barRect.right - endTextLayout.size.width - TEXT_OFFSET * density.density,
+                y = barRect.top + (barRect.height - endTextLayout.size.height) / 2
+            ),
+            style = textStyleBar
+        )
+
+        val path = Path()
+        drawMetaball(
+            path = path,
+            circle1 = rectBottomCircle,
+            circle2 = rectTopCircle,
+            topBorder = barRect.top,
+            riseDistance = metaballRiseDistPx,
+            maxDistance = metaballMaxDistPx,
+            cornerRadius = cornerRadiusPx,
+            topSpreadFactor = TOP_SPREAD_FACTOR,
+            bottomStartSpreadFactor = BOTTOM_START_SPREAD_FACTOR,
+            bottomEndSpreadFactor = BOTTOM_END_SPREAD_FACTOR,
+            handleRate = METABALL_HANDLER_FACTOR,
+            color = barColor
+        )
+
+        drawCircle(
+            color = bubbleColor,
+            radius = labelDiameterPx / 2f,
+            center = Offset(rectLabel.centerX, rectLabel.centerY)
+        )
+
+        val labelString = bubbleText ?: ((sliderPosition.value * 100).toInt()).toString()
+        val textLayoutLabel = textMeasurer.measure(
+            AnnotatedString(labelString),
+            style = textStyleBar.copy(color = bubbleTextColor)
+        )
+
+        val backgroundDiameter = labelDiameterPx * 0.8f
+        val backgroundRadius = backgroundDiameter / 2f
+
+        drawCircle(
+            color = Color.White,
+            radius = backgroundRadius,
+            center = Offset(rectLabel.centerX, rectLabel.centerY)
+        )
+
+        drawText(
+            textMeasurer,
+            labelString,
+            topLeft = Offset(
+                x = rectLabel.centerX - textLayoutLabel.size.width / 2,
+                y = rectLabel.centerY - textLayoutLabel.size.height / 2
+            ),
+            style = textStyleBar.copy(color = bubbleTextColor)
+        )
+    }
+
+}
+
+
 private fun offsetRectToPosition(centerX: Float, vararg rects: Rect) {
     rects.forEach { r ->
         val dx = centerX - (r.left + r.width / 2)
-        // Shift horizontally, keep top/bottom same
         r.translate(dx = dx, dy = 0f)
     }
 }
 
-/**
- * In Jetpack Compose, we don't have "RectF" directly,
- * but we do have `Rect`, which can be mutated with [translate].
- */
 private data class Rect(
     var left: Float,
     var top: Float,
@@ -385,11 +355,7 @@ private data class Rect(
     }
 }
 
-/**
- * Direct translation of the original `drawMetaball(...)` method from the Java code.
- * We keep the same steps & variable names. This draws the path + the top circle
- * onto the current [DrawScope].
- */
+
 private fun DrawScope.drawMetaball(
     path: Path,
     circle1: Rect,
@@ -411,17 +377,13 @@ private fun DrawScope.drawMetaball(
         return
     }
 
-    // distance between centers
     val d = getVectorLength(circle1.centerX, circle1.centerY, circle2.centerX, circle2.centerY)
     if (d > maxDistance || d <= abs(radius1 - radius2)) {
-        // The original immediately returns if too far or one engulfs the other
         return
     }
 
-    // riseRatio = how much the top circle has "risen" from bar top to top circle
     val riseRatio = min(1f, max(0f, topBorder - circle2.top) / riseDistance)
 
-    // "case circles are overlapping"
     val u1: Float
     val u2: Float
     if (d < radius1 + radius2) {
@@ -446,7 +408,6 @@ private fun DrawScope.drawMetaball(
     val angle2a = angle1 + fPI - u2 - (fPI - u2 - angle2) * topSpreadFactor
     val angle2b = angle1 - fPI + u2 + (fPI - u2 - angle2) * topSpreadFactor
 
-    // p1a, p1b => points on circle1's circumference
     val p1a = getVector(angle1a, radius1).let {
         Offset(it.first + circle1.centerX, it.second + circle1.centerY)
     }
@@ -454,7 +415,6 @@ private fun DrawScope.drawMetaball(
         Offset(it.first + circle1.centerX, it.second + circle1.centerY)
     }
 
-    // p2a, p2b => points on circle2
     val p2a = getVector(angle2a, radius2).let {
         Offset(it.first + circle2.centerX, it.second + circle2.centerY)
     }
@@ -468,7 +428,6 @@ private fun DrawScope.drawMetaball(
         getVectorLength(p1a.x, p1a.y, p2a.x, p2a.y) / totalRadius
     )
 
-    // "case circles are overlapping"
     val d2 = d2Base * min(1f, d * 2 / totalRadius)
     val r1 = radius1 * d2
     val r2 = radius2 * d2
@@ -479,15 +438,11 @@ private fun DrawScope.drawMetaball(
     val sp3 = getVector(angle2b - pi2, r2)  // handle offset for p2b
     val sp4 = getVector(angle1b + pi2, r1)  // handle offset for p1b
 
-    // "move bottom point to bar top border"
-    // The code does:
-    //  val yOffset = (abs(topBorder - p1a[1]) * riseRatio) - 1
-    //  val fp1a = p1a.let { ... }
+
     val yOffset = (abs(topBorder - p1a.y) * riseRatio) - 1
     val fp1a = Offset(p1a.x, p1a.y - yOffset)
     val fp1b = Offset(p1b.x, p1b.y - yOffset)
 
-    // Now replicate the path commands:
     with(path) {
         reset()
         moveTo(fp1a.x, fp1a.y + cornerRadius)
@@ -511,10 +466,7 @@ private fun DrawScope.drawMetaball(
         close()
     }
 
-    // Draw the path
     drawPath(path = path, color = color)
-    // Then "drawOval(circle2, paint)" => the top circle rect
-    // We'll replicate "drawOval(rect, paint)"
     drawOval(
         color = color,
         topLeft = Offset(circle2.left, circle2.top),
@@ -522,14 +474,12 @@ private fun DrawScope.drawMetaball(
     )
 }
 
-/** From the original code: getVector(radians, length) -> Pair(x, y). */
 private fun getVector(radians: Float, length: Float): Pair<Float, Float> {
     val x = cos(radians) * length
     val y = sin(radians) * length
     return x to y
 }
 
-/** Euclidean distance between (x1,y1) and (x2,y2). */
 private fun getVectorLength(x1: Float, y1: Float, x2: Float, y2: Float): Float {
     val dx = x1 - x2
     val dy = y1 - y2

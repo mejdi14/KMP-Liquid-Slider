@@ -40,6 +40,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 import kmp_liquid_slider.composeapp.generated.resources.Res
 import kmp_liquid_slider.composeapp.generated.resources.compose_multiplatform
+import org.example.project.library.FluidSlider2
 
 @Composable
 @Preview
@@ -55,7 +56,6 @@ fun App() {
                     onValueChange = { newValue ->
                         // Handle value change
                     },
-                    size = FluidSliderSize.NORMAL
                 )
             }
         }
