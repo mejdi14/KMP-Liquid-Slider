@@ -17,7 +17,7 @@ object SliderConstants {
     const val BOTTOM_END_SPREAD_FACTOR = 0.1f
     const val LIQUID_BALL_HANDLER_FACTOR = 1.4f
     const val LIQUID_BALL_MAX_DISTANCE = 15f
-    const val LIQUID_BALL_RISE_DISTANCE = 1.4f
+    const val LIQUID_BALL_RISE_DISTANCE = 1.2f
     const val TEXT_SIZE = 12f
     const val TEXT_OFFSET = 8
     const val TEXT_START = "0"
