@@ -28,6 +28,10 @@
   />
 </div>
 
+## :art: inspiration
+
+This library was inspired by Ramotion's original library which i migrated to Jetpack Compose
+
 ## Installation
 
 Add this to your module's `build.gradle` file:
