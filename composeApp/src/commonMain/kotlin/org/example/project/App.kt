@@ -10,7 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.example.project.library.FluidSlider
+import org.example.project.library.LiquidSlider
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -21,7 +21,7 @@ fun App() {
             Spacer(Modifier.height(100.dp))
             Box(Modifier.fillMaxWidth()
                ) {
-                FluidSlider(
+                LiquidSlider(
                     modifier = Modifier.align(Alignment.Center),
                     value = 0.5f,
                     onValueChange = { newValue ->

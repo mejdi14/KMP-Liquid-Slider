@@ -1,15 +1,12 @@
-package org.example.project.library
+package org.example.slider.library
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-// Size configuration
 
 
-// Style configuration
-data class FluidSliderConfig(
+data class LiquidSliderConfig(
     val barColor: Color = Color(0xFF6168E7),
     val bubbleColor: Color = Color.White,
     val textColor: Color = Color.Black,

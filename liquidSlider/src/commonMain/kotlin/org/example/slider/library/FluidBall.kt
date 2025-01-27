@@ -9,25 +9,22 @@ import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.acos
 import kotlin.math.atan2
-import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.sin
-import kotlin.math.sqrt
 
-internal fun DrawScope.drawFluidBall(
-    fluidBallPath: Path,
+internal fun DrawScope.drawLiquidBall(
+    liquidBallPath: Path,
     bottomCircle: Rect,
     topCircle: Rect,
     barTopBoundary: Float,
-    fluidBallRiseLimit: Float,
+    liquidBallRiseLimit: Float,
     maxDistanceBetweenCircles: Float,
     cornerRadiusPx: Float,
     topCircleSpreadFactor: Float,
     bottomCircleStartSpreadFactor: Float,
     bottomCircleEndSpreadFactor: Float,
     handleRate: Float,
-    fluidBallColor: Color
+    liquidBallColor: Color
 ) {
     val bottomCircleRadius = bottomCircle.width / 2f
     val topCircleRadius = topCircle.width / 2f
@@ -43,7 +40,7 @@ internal fun DrawScope.drawFluidBall(
         return
     }
 
-    val riseRatio = min(1f, max(0f, barTopBoundary - topCircle.top) / fluidBallRiseLimit)
+    val riseRatio = min(1f, max(0f, barTopBoundary - topCircle.top) / liquidBallRiseLimit)
 
     val angleOffset1: Float
     val angleOffset2: Float
@@ -120,7 +117,7 @@ internal fun DrawScope.drawFluidBall(
     val adjustedBottomPoint1 = Offset(bottomCirclePoint1.x, bottomCirclePoint1.y - verticalOffset)
     val adjustedBottomPoint2 = Offset(bottomCirclePoint2.x, bottomCirclePoint2.y - verticalOffset)
 
-    with(fluidBallPath) {
+    with(liquidBallPath) {
         reset()
         moveTo(adjustedBottomPoint1.x, adjustedBottomPoint1.y + cornerRadiusPx)
         lineTo(adjustedBottomPoint1.x, adjustedBottomPoint1.y)
@@ -150,9 +147,9 @@ internal fun DrawScope.drawFluidBall(
         close()
     }
 
-    drawPath(path = fluidBallPath, color = fluidBallColor)
+    drawPath(path = liquidBallPath, color = liquidBallColor)
     drawOval(
-        color = fluidBallColor,
+        color = liquidBallColor,
         topLeft = Offset(topCircle.left, topCircle.top),
         size = Size(topCircle.width, topCircle.height)
     )

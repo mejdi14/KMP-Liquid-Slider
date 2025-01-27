@@ -38,13 +38,13 @@ import org.example.project.library.SliderConstants.TOP_SPREAD_FACTOR
 import org.example.project.library.SliderConstants.TOUCH_CIRCLE_DIAMETER
 
 @Composable
-internal fun BoxScope.FluidSliderCanvas(
+internal fun BoxScope.LiquidSliderCanvas(
     density: Density,
     desiredHeightPx: Float,
     isDragging: MutableState<Boolean>,
     onBeginTracking: () -> Unit,
     onEndTracking: () -> Unit,
-    size: FluidSliderSize,
+    size: LiquidSliderSize,
     desiredWidthPx: Float,
     barHeightPx: Float,
     sliderPosition: MutableState<Float>,
@@ -111,8 +111,8 @@ internal fun BoxScope.FluidSliderCanvas(
         val touchDiameterPx = barHeightPx * TOUCH_CIRCLE_DIAMETER
         val labelDiameterPx = barHeightPx * LABEL_CIRCLE_DIAMETER
 
-        val fluidballMaxDistPx = barHeightPx * METABALL_MAX_DISTANCE
-        val fluidballRiseDistPx = barHeightPx * METABALL_RISE_DISTANCE
+        val liquidBallMaxDistPx = barHeightPx * METABALL_MAX_DISTANCE
+        val liquidBallRiseDistPx = barHeightPx * METABALL_RISE_DISTANCE
         val cornerRadiusPx = BAR_CORNER_RADIUS * density.density
 
         val rectBottomCircle = Rect(
@@ -188,19 +188,19 @@ internal fun BoxScope.FluidSliderCanvas(
         )
 
         val path = Path()
-        drawFluidBall(
-            fluidBallPath = path,
+        drawLiquidBall(
+            liquidBallPath = path,
             bottomCircle = rectBottomCircle,
             topCircle = rectTopCircle,
             barTopBoundary = barRect.top,
-            fluidBallRiseLimit = fluidballRiseDistPx,
-            maxDistanceBetweenCircles = fluidballMaxDistPx,
+            liquidBallRiseLimit = liquidBallRiseDistPx,
+            maxDistanceBetweenCircles = liquidBallMaxDistPx,
             cornerRadiusPx = cornerRadiusPx,
             topCircleSpreadFactor = TOP_SPREAD_FACTOR,
             bottomCircleStartSpreadFactor = BOTTOM_START_SPREAD_FACTOR,
             bottomCircleEndSpreadFactor = BOTTOM_END_SPREAD_FACTOR,
             handleRate = METABALL_HANDLER_FACTOR,
-            fluidBallColor = barColor
+            liquidBallColor = barColor
         )
 
         drawCircle(
