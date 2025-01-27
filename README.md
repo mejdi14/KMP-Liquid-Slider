@@ -1,6 +1,4 @@
-Here’s a `README.md` file for your `KMP-Liquid-Slider` library, designed to match the style and structure of the `KMP-Searchable-Dropdown` README:
 
----
 
 <h1 align="center">Welcome to KMP Liquid Slider 👋</h1>
 
@@ -32,7 +30,7 @@ Here’s a `README.md` file for your `KMP-Liquid-Slider` library, designed to ma
 
 ## Installation
 
-Add this to your module's `build.gradle` file (make sure the version matches the JitPack badge above):
+Add this to your module's `build.gradle` file:
 
 ```gradle
 dependencies {
@@ -52,7 +50,7 @@ LiquidSlider(
         bubbleColor = Color.White,
         textColor = Color.Black,
         startText = "0",
-        endText = "100",
+        endText = "20",
         textSize = 14f,
         bubbleText = "Value",
         initialPosition = 0.5f
