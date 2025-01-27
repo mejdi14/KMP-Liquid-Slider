@@ -16,37 +16,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import org.example.project.library.SliderConstants.ANIMATION_DURATION
-import org.example.project.library.SliderConstants.INITIAL_POSITION
-import org.example.project.library.SliderConstants.METABALL_RISE_DISTANCE
 import org.example.project.library.SliderConstants.SLIDER_HEIGHT
-import org.example.project.library.SliderConstants.TEXT_END
-import org.example.project.library.SliderConstants.TEXT_SIZE
-import org.example.project.library.SliderConstants.TEXT_START
+import org.example.slider.library.LiquidSliderConfig
 
 @Composable
 fun LiquidSlider(
     modifier: Modifier = Modifier,
     size: LiquidSliderSize = LiquidSliderSize(),
+    liquidSliderConfig: LiquidSliderConfig = LiquidSliderConfig(),
 
-    startText: String = TEXT_START,
-    endText: String = TEXT_END,
-    bubbleText: String? = null,
-
-    barColor: Color = Color(0xFF6168E7),
-    bubbleColor: Color = Color(0xFF6168E7),
-    barTextColor: Color = Color.White,
-    bubbleTextColor: Color = Color.Black,
-
-    value: Float = INITIAL_POSITION,
     onValueChange: (Float) -> Unit,
     onBeginTracking: () -> Unit = {},
     onEndTracking: () -> Unit = {},
 
-    textSizeSp: Float = TEXT_SIZE.toFloat(),
-    durationMillis: Int = ANIMATION_DURATION
 ) {
     val density = LocalDensity.current
     val barHeightPx = with(density) { size.height.dp.toPx() }
@@ -54,11 +37,11 @@ fun LiquidSlider(
     val desiredWidthPx = with(density) { size.width.dp.toPx() }
     val desiredHeightPx = (barHeightPx * SLIDER_HEIGHT)
 
-    var sliderPosition = remember { mutableStateOf(value.coerceIn(0f, 1f)) }
+    var sliderPosition = remember { mutableStateOf(liquidSliderConfig.initialPosition.coerceIn(0f, 1f)) }
 
     var isDragging = remember { mutableStateOf(false) }
     val topCircleAnimOffset = animateFloatAsState(
-        targetValue = if (isDragging.value) -METABALL_RISE_DISTANCE else 0f,
+        targetValue = if (isDragging.value) -(liquidSliderConfig.liquidBalRiseDistance) else 0f,
         animationSpec = spring(
             dampingRatio = 0.6f,
             stiffness = Spring.StiffnessLow
@@ -86,20 +69,13 @@ fun LiquidSlider(
             sliderPosition,
             onValueChange,
             topCircleAnimOffset,
-            barColor,
-            barTextColor,
-            textSizeSp,
             textMeasurer,
-            startText,
-            endText,
-            bubbleColor,
-            bubbleText,
-            bubbleTextColor
+            liquidSliderConfig
         )
     }
 
-    LaunchedEffect(value) {
-        sliderPosition.value = value.coerceIn(0f, 1f)
+    LaunchedEffect(liquidSliderConfig.initialPosition) {
+        sliderPosition.value = liquidSliderConfig.initialPosition.coerceIn(0f, 1f)
     }
 }
 

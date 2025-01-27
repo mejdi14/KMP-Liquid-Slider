@@ -22,20 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.example.project.library.SliderConstants.BAR_CORNER_RADIUS
-import org.example.project.library.SliderConstants.BAR_INNER_HORIZONTAL_OFFSET
-import org.example.project.library.SliderConstants.BAR_VERTICAL_OFFSET
-import org.example.project.library.SliderConstants.BOTTOM_CIRCLE_DIAMETER
-import org.example.project.library.SliderConstants.BOTTOM_END_SPREAD_FACTOR
-import org.example.project.library.SliderConstants.BOTTOM_START_SPREAD_FACTOR
-import org.example.project.library.SliderConstants.LABEL_CIRCLE_DIAMETER
-import org.example.project.library.SliderConstants.METABALL_HANDLER_FACTOR
-import org.example.project.library.SliderConstants.METABALL_MAX_DISTANCE
-import org.example.project.library.SliderConstants.METABALL_RISE_DISTANCE
-import org.example.project.library.SliderConstants.TEXT_OFFSET
-import org.example.project.library.SliderConstants.TOP_CIRCLE_DIAMETER
-import org.example.project.library.SliderConstants.TOP_SPREAD_FACTOR
-import org.example.project.library.SliderConstants.TOUCH_CIRCLE_DIAMETER
+import org.example.slider.library.LiquidSliderConfig
 
 @Composable
 internal fun BoxScope.LiquidSliderCanvas(
@@ -50,15 +37,8 @@ internal fun BoxScope.LiquidSliderCanvas(
     sliderPosition: MutableState<Float>,
     onValueChange: (Float) -> Unit,
     topCircleAnimOffset: State<Float>,
-    barColor: Color,
-    barTextColor: Color,
-    textSizeSp: Float,
     textMeasurer: TextMeasurer,
-    startText: String,
-    endText: String,
-    bubbleColor: Color,
-    bubbleText: String?,
-    bubbleTextColor: Color
+    liquidSliderConfig: LiquidSliderConfig,
 ) {
     Canvas(
         modifier = Modifier
@@ -82,11 +62,11 @@ internal fun BoxScope.LiquidSliderCanvas(
                     change.consume()
 
                     size
-                    val w = size.width.dp.toPx() // we have "size.value" is height...
-                    val actualWidth = desiredWidthPx // our canvas width
-                    val touchDiameterPx = barHeightPx * TOUCH_CIRCLE_DIAMETER
+                    val w = size.width.dp.toPx()
+                    val actualWidth = desiredWidthPx
+                    val touchDiameterPx = barHeightPx * liquidSliderConfig.touchCircleDiameter
                     val maxMovement =
-                        actualWidth - touchDiameterPx - BAR_INNER_HORIZONTAL_OFFSET
+                        actualWidth - touchDiameterPx - liquidSliderConfig.barInnerHorizontalOffset
 
                     val newPos =
                         (sliderPosition.value + dragAmount.x / maxMovement).coerceIn(0f, 1f)
@@ -98,7 +78,7 @@ internal fun BoxScope.LiquidSliderCanvas(
         val canvasWidth = size.width.dp.toPx().coerceAtLeast(desiredWidthPx)
         val canvasHeight = size.height.dp.toPx().coerceAtLeast(desiredHeightPx)
 
-        val barVerticalOffsetPx = barHeightPx * BAR_VERTICAL_OFFSET
+        val barVerticalOffsetPx = barHeightPx * liquidSliderConfig.barVerticalOffset
         val barRect = Rect(
             left = 0f,
             top = barVerticalOffsetPx,
@@ -106,14 +86,14 @@ internal fun BoxScope.LiquidSliderCanvas(
             bottom = barVerticalOffsetPx + barHeightPx
         )
 
-        val topCircleDiameterPx = barHeightPx * TOP_CIRCLE_DIAMETER
-        val bottomCircleDiameterPx = barHeightPx * BOTTOM_CIRCLE_DIAMETER
-        val touchDiameterPx = barHeightPx * TOUCH_CIRCLE_DIAMETER
-        val labelDiameterPx = barHeightPx * LABEL_CIRCLE_DIAMETER
+        val topCircleDiameterPx = barHeightPx * liquidSliderConfig.topCircleDiameter
+        val bottomCircleDiameterPx = barHeightPx * liquidSliderConfig.bottomCircleDiameter
+        val touchDiameterPx = barHeightPx * liquidSliderConfig.touchCircleDiameter
+        val labelDiameterPx = barHeightPx * liquidSliderConfig.labelCircleDiameter
 
-        val liquidBallMaxDistPx = barHeightPx * METABALL_MAX_DISTANCE
-        val liquidBallRiseDistPx = barHeightPx * METABALL_RISE_DISTANCE
-        val cornerRadiusPx = BAR_CORNER_RADIUS * density.density
+        val liquidBallMaxDistPx = barHeightPx * liquidSliderConfig.liquidBalMaxDistance
+        val liquidBallRiseDistPx = barHeightPx * liquidSliderConfig.liquidBalRiseDistance
+        val cornerRadiusPx = liquidSliderConfig.barCornerRadius * density.density
 
         val rectBottomCircle = Rect(
             left = 0f,
@@ -138,9 +118,9 @@ internal fun BoxScope.LiquidSliderCanvas(
             bottom = barVerticalOffsetPx + touchDiameterPx
         )
 
-        val maxMovement = canvasWidth - touchDiameterPx - BAR_INNER_HORIZONTAL_OFFSET * 2
+        val maxMovement = canvasWidth - touchDiameterPx - liquidSliderConfig.barInnerHorizontalOffset * 2
         val xPos =
-            BAR_INNER_HORIZONTAL_OFFSET + (touchDiameterPx / 2) + maxMovement * sliderPosition.value
+            liquidSliderConfig.barInnerHorizontalOffset + (touchDiameterPx / 2) + maxMovement * sliderPosition.value
         val labelOffsetY =
             barVerticalOffsetPx + (topCircleDiameterPx - labelDiameterPx) / 2f + topRising
         val rectLabel = Rect(
@@ -154,34 +134,34 @@ internal fun BoxScope.LiquidSliderCanvas(
         offsetRectToPosition(xPos, rectTouch, rectTopCircle, rectBottomCircle, rectLabel)
 
         drawRoundRect(
-            color = barColor,
+            color = liquidSliderConfig.barColor,
             topLeft = Offset(barRect.left, barRect.top),
             size = Size(barRect.width, barRect.height),
             cornerRadius = CornerRadius(cornerRadiusPx, cornerRadiusPx)
         )
 
         val textStyleBar = TextStyle(
-            color = barTextColor,
-            fontSize = textSizeSp.sp,
+            color = liquidSliderConfig.textColor,
+            fontSize = ((liquidSliderConfig.textSize)).sp,
             textAlign = TextAlign.Center
         )
         val startTextLayout =
-            textMeasurer.measure(AnnotatedString(startText), style = textStyleBar)
+            textMeasurer.measure(AnnotatedString(liquidSliderConfig.startText), style = textStyleBar)
         drawText(
             textMeasurer,
-            startText,
+            liquidSliderConfig.startText,
             topLeft = Offset(
-                x = TEXT_OFFSET * density.density,
+                x = liquidSliderConfig.textOffset * density.density,
                 y = barRect.top + (barRect.height - startTextLayout.size.height) / 2
             ),
             style = textStyleBar
         )
-        val endTextLayout = textMeasurer.measure(AnnotatedString(endText), style = textStyleBar)
+        val endTextLayout = textMeasurer.measure(AnnotatedString(liquidSliderConfig.endText), style = textStyleBar)
         drawText(
             textMeasurer,
-            endText,
+            liquidSliderConfig.endText,
             topLeft = Offset(
-                x = barRect.right - endTextLayout.size.width - TEXT_OFFSET * density.density,
+                x = barRect.right - endTextLayout.size.width - liquidSliderConfig.textOffset * density.density,
                 y = barRect.top + (barRect.height - endTextLayout.size.height) / 2
             ),
             style = textStyleBar
@@ -196,23 +176,23 @@ internal fun BoxScope.LiquidSliderCanvas(
             liquidBallRiseLimit = liquidBallRiseDistPx,
             maxDistanceBetweenCircles = liquidBallMaxDistPx,
             cornerRadiusPx = cornerRadiusPx,
-            topCircleSpreadFactor = TOP_SPREAD_FACTOR,
-            bottomCircleStartSpreadFactor = BOTTOM_START_SPREAD_FACTOR,
-            bottomCircleEndSpreadFactor = BOTTOM_END_SPREAD_FACTOR,
-            handleRate = METABALL_HANDLER_FACTOR,
-            liquidBallColor = barColor
+            topCircleSpreadFactor = liquidSliderConfig.topSpreadFactor,
+            bottomCircleStartSpreadFactor = liquidSliderConfig.bottomStartSpreadFactor,
+            bottomCircleEndSpreadFactor = liquidSliderConfig.bottomEndSpreadFactor,
+            handleRate = liquidSliderConfig.liquidBalHandlerFactor,
+            liquidBallColor = liquidSliderConfig.barColor
         )
 
         drawCircle(
-            color = bubbleColor,
+            color = liquidSliderConfig.bubbleColor,
             radius = labelDiameterPx / 2f,
             center = Offset(rectLabel.centerX, rectLabel.centerY)
         )
 
-        val labelString = bubbleText ?: ((sliderPosition.value * 100).toInt()).toString()
+        val labelString = liquidSliderConfig.bubbleText ?: ((sliderPosition.value * liquidSliderConfig.progressCount).toInt()).toString()
         val textLayoutLabel = textMeasurer.measure(
             AnnotatedString(labelString),
-            style = textStyleBar.copy(color = bubbleTextColor)
+            style = textStyleBar.copy(color = liquidSliderConfig.textColor)
         )
 
         val backgroundDiameter = labelDiameterPx * 0.8f
@@ -231,7 +211,7 @@ internal fun BoxScope.LiquidSliderCanvas(
                 x = rectLabel.centerX - textLayoutLabel.size.width / 2,
                 y = rectLabel.centerY - textLayoutLabel.size.height / 2
             ),
-            style = textStyleBar.copy(color = bubbleTextColor)
+            style = textStyleBar.copy(color = liquidSliderConfig.textColor)
         )
     }
 

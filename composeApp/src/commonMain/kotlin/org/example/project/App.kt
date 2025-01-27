@@ -23,7 +23,6 @@ fun App() {
                ) {
                 LiquidSlider(
                     modifier = Modifier.align(Alignment.Center),
-                    value = 0.5f,
                     onValueChange = { newValue ->
                     },
                 )
