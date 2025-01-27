@@ -141,7 +141,7 @@ internal fun BoxScope.LiquidSliderCanvas(
         )
 
         val textStyleBar = TextStyle(
-            color = liquidSliderConfig.textColor,
+            color = liquidSliderConfig.barTextColor,
             fontSize = ((liquidSliderConfig.textSize)).sp,
             textAlign = TextAlign.Center
         )
