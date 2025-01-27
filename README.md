@@ -23,7 +23,7 @@
   <img 
     src="https://raw.githubusercontent.com/mejdi14/KMP-Liquid-Slider/main/demo/output.gif"
     height="500"
-    width="645"
+    width="445"
     style="margin-right: 20px;"
   />
 </div>
