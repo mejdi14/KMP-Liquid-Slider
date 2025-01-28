@@ -118,7 +118,8 @@ internal fun BoxScope.LiquidSliderCanvas(
             bottom = barVerticalOffsetPx + touchDiameterPx
         )
 
-        val maxMovement = canvasWidth - touchDiameterPx - liquidSliderConfig.barInnerHorizontalOffset * 2
+        val maxMovement =
+            canvasWidth - touchDiameterPx - liquidSliderConfig.barInnerHorizontalOffset * 2
         val xPos =
             liquidSliderConfig.barInnerHorizontalOffset + (touchDiameterPx / 2) + maxMovement * sliderPosition.value
         val labelOffsetY =
@@ -146,7 +147,10 @@ internal fun BoxScope.LiquidSliderCanvas(
             textAlign = TextAlign.Center
         )
         val startTextLayout =
-            textMeasurer.measure(AnnotatedString(liquidSliderConfig.startText), style = textStyleBar)
+            textMeasurer.measure(
+                AnnotatedString(liquidSliderConfig.startText),
+                style = textStyleBar
+            )
         drawText(
             textMeasurer,
             liquidSliderConfig.startText,
@@ -156,7 +160,8 @@ internal fun BoxScope.LiquidSliderCanvas(
             ),
             style = textStyleBar
         )
-        val endTextLayout = textMeasurer.measure(AnnotatedString(liquidSliderConfig.endText), style = textStyleBar)
+        val endTextLayout =
+            textMeasurer.measure(AnnotatedString(liquidSliderConfig.endText), style = textStyleBar)
         drawText(
             textMeasurer,
             liquidSliderConfig.endText,
@@ -189,17 +194,18 @@ internal fun BoxScope.LiquidSliderCanvas(
             center = Offset(rectLabel.centerX, rectLabel.centerY)
         )
 
-        val labelString = liquidSliderConfig.bubbleText ?: ((sliderPosition.value * liquidSliderConfig.progressCount).toInt()).toString()
+        val labelString = liquidSliderConfig.bubbleText
+            ?: ((sliderPosition.value * liquidSliderConfig.progressCount).toInt()).toString()
         val textLayoutLabel = textMeasurer.measure(
             AnnotatedString(labelString),
             style = textStyleBar.copy(color = liquidSliderConfig.textColor)
         )
 
-        val backgroundDiameter = labelDiameterPx * 0.8f
+        val backgroundDiameter = labelDiameterPx * liquidSliderConfig.bubbleTextBackgroundSizeFactor
         val backgroundRadius = backgroundDiameter / 2f
 
         drawCircle(
-            color = Color.White,
+            color = liquidSliderConfig.bubbleTextBackground,
             radius = backgroundRadius,
             center = Offset(rectLabel.centerX, rectLabel.centerY)
         )

@@ -1,9 +1,7 @@
 package org.example.slider.library
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import org.example.project.library.SliderConstants
+import org.example.slider.library.SliderConstants.LIQUID_BALL_TEXT_BACKGROUND_FACTOR
 
 
 data class LiquidSliderConfig(
@@ -15,6 +13,8 @@ data class LiquidSliderConfig(
     val endText: String = SliderConstants.TEXT_END,
     val textSize: Float = SliderConstants.TEXT_SIZE,
     val bubbleText: String? = null,
+    val bubbleTextBackground: Color = Color.White,
+    val bubbleTextBackgroundSizeFactor: Float = LIQUID_BALL_TEXT_BACKGROUND_FACTOR,
     val progressCount: Int = SliderConstants.PROGRESS_COUNT,
     val barCornerRadius: Float = SliderConstants.BAR_CORNER_RADIUS.toFloat(),
     val barVerticalOffset: Float = SliderConstants.BAR_VERTICAL_OFFSET,

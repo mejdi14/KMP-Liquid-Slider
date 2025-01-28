@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
-import org.example.project.library.SliderConstants.SLIDER_HEIGHT
+import org.example.slider.library.SliderConstants.SLIDER_HEIGHT
 import org.example.slider.library.LiquidSliderConfig
 
 @Composable

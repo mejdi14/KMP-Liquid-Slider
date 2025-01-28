@@ -1,4 +1,6 @@
-package org.example.project.library
+package org.example.slider.library
+
+import androidx.compose.ui.graphics.Color
 
 object SliderConstants {
     const val BAR_CORNER_RADIUS = 4
@@ -23,4 +25,5 @@ object SliderConstants {
     const val TEXT_START = "0"
     const val TEXT_END = "20"
     const val INITIAL_POSITION = 0.5f
+    const val LIQUID_BALL_TEXT_BACKGROUND_FACTOR = 0.8f
 }
