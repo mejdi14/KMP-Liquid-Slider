@@ -204,6 +204,7 @@ internal fun BoxScope.LiquidSliderCanvas(
         val backgroundDiameter = labelDiameterPx * liquidSliderConfig.bubbleTextBackgroundSizeFactor
         val backgroundRadius = backgroundDiameter / 2f
 
+        if (liquidSliderConfig.showBubbleTextBackground)
         drawCircle(
             color = liquidSliderConfig.bubbleTextBackground,
             radius = backgroundRadius,

@@ -13,6 +13,7 @@ data class LiquidSliderConfig(
     val endText: String = SliderConstants.TEXT_END,
     val textSize: Float = SliderConstants.TEXT_SIZE,
     val bubbleText: String? = null,
+    val showBubbleTextBackground: Boolean = true,
     val bubbleTextBackground: Color = Color.White,
     val bubbleTextBackgroundSizeFactor: Float = LIQUID_BALL_TEXT_BACKGROUND_FACTOR,
     val progressCount: Int = SliderConstants.PROGRESS_COUNT,
