@@ -1,9 +1,5 @@
 package org.example.project.library
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.dp
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt

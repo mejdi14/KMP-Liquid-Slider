@@ -1,7 +1,5 @@
 package org.example.slider.library
 
-import androidx.compose.ui.graphics.Color
-
 object SliderConstants {
     const val BAR_CORNER_RADIUS = 4
     const val BAR_VERTICAL_OFFSET = 1.2f

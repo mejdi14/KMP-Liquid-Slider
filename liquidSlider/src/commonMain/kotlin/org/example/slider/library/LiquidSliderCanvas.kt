@@ -11,9 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextMeasurer
@@ -155,26 +153,32 @@ internal fun BoxScope.LiquidSliderCanvas(
                 AnnotatedString(liquidSliderConfig.startText),
                 style = textStyleBar
             )
-        drawText(
-            textMeasurer,
-            liquidSliderConfig.startText,
-            topLeft = Offset(
-                x = liquidSliderConfig.textOffset * density.density,
-                y = barRect.top + (barRect.height - startTextLayout.size.height) / 2
-            ),
-            style = textStyleBar
-        )
-        val endTextLayout =
-            textMeasurer.measure(AnnotatedString(liquidSliderConfig.endText), style = textStyleBar)
-        drawText(
-            textMeasurer,
-            liquidSliderConfig.endText,
-            topLeft = Offset(
-                x = barRect.right - endTextLayout.size.width - liquidSliderConfig.textOffset * density.density,
-                y = barRect.top + (barRect.height - endTextLayout.size.height) / 2
-            ),
-            style = textStyleBar
-        )
+        if (liquidSliderConfig.imageList.isEmpty()) {
+            drawText(
+                textMeasurer,
+                liquidSliderConfig.startText,
+                topLeft = Offset(
+                    x = liquidSliderConfig.textOffset * density.density,
+                    y = barRect.top + (barRect.height - startTextLayout.size.height) / 2
+                ),
+                style = textStyleBar
+            )
+            val endTextLayout =
+                textMeasurer.measure(
+                    AnnotatedString(liquidSliderConfig.endText),
+                    style = textStyleBar
+                )
+            drawText(
+                textMeasurer,
+                liquidSliderConfig.endText,
+                topLeft = Offset(
+                    x = barRect.right - endTextLayout.size.width - liquidSliderConfig.textOffset * density.density,
+                    y = barRect.top + (barRect.height - endTextLayout.size.height) / 2
+                ),
+                style = textStyleBar
+            )
+        }
+
 
         val path = Path()
         drawLiquidBall(
@@ -213,7 +217,10 @@ internal fun BoxScope.LiquidSliderCanvas(
             drawImage(
                 image = imagePainter,
                 dstSize = IntSize(imageSize.toInt(), imageSize.toInt()),
-                dstOffset = IntOffset(imageOffsetX.toInt(), imageOffsetY.toInt()), // Positioning the image
+                dstOffset = IntOffset(
+                    imageOffsetX.toInt(),
+                    imageOffsetY.toInt()
+                ), // Positioning the image
             )
         } else {
             val labelString = liquidSliderConfig.bubbleText
@@ -223,7 +230,8 @@ internal fun BoxScope.LiquidSliderCanvas(
                 style = textStyleBar.copy(color = liquidSliderConfig.textColor)
             )
 
-            val backgroundDiameter = labelDiameterPx * liquidSliderConfig.bubbleTextBackgroundSizeFactor
+            val backgroundDiameter =
+                labelDiameterPx * liquidSliderConfig.bubbleTextBackgroundSizeFactor
             val backgroundRadius = backgroundDiameter / 2f
 
             if (liquidSliderConfig.showBubbleTextBackground)

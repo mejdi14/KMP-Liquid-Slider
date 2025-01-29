@@ -2,9 +2,7 @@ package org.example.slider.library
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.painter.Painter
 import org.example.slider.library.SliderConstants.LIQUID_BALL_TEXT_BACKGROUND_FACTOR
-import org.jetbrains.compose.resources.DrawableResource
 
 
 data class LiquidSliderConfig(

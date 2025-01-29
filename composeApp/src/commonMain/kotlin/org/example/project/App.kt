@@ -15,16 +15,12 @@ import androidx.compose.ui.unit.dp
 import kmp_liquid_slider.composeapp.generated.resources.Res
 import kmp_liquid_slider.composeapp.generated.resources.blush
 import kmp_liquid_slider.composeapp.generated.resources.cold_sweat
-import kmp_liquid_slider.composeapp.generated.resources.compose_multiplatform
 import kmp_liquid_slider.composeapp.generated.resources.disappointed_relieved
-import kmp_liquid_slider.composeapp.generated.resources.emoji
 import kmp_liquid_slider.composeapp.generated.resources.heart_eyes
-import kmp_liquid_slider.composeapp.generated.resources.insta
 import kmp_liquid_slider.composeapp.generated.resources.neutral_face
 import org.example.project.library.LiquidSlider
 import org.example.slider.library.LiquidSliderConfig
 import org.jetbrains.compose.resources.imageResource
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
@@ -48,12 +44,25 @@ fun App() {
                     modifier = Modifier.align(Alignment.Center),
                     liquidSliderConfig = LiquidSliderConfig(
                         imageList = imageList,
-                        barColor = Color(0xFF16C47F),
-                        bubbleColor = Color(0xFF16C47F)
+                        barColor = Color(0xFF5CB338),
+                        bubbleColor = Color(0xFF5CB338)
                     ),
                     onValueChange = { newValue ->
                     },
                 )
+            }
+
+            Spacer(Modifier.height(100.dp))
+            Box(
+                Modifier.fillMaxWidth()
+            ) {
+                LiquidSlider(
+                    modifier = Modifier.align(Alignment.Center),
+
+                    onValueChange = { newValue ->
+                    },
+                )
+
             }
         }
     }

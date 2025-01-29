@@ -1,14 +1,5 @@
 package org.example.project.library
 
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.text.TextMeasurer
-import androidx.compose.ui.unit.Density
-import kotlin.math.cos
-import kotlin.math.pow
-import kotlin.math.sin
-import kotlin.math.sqrt
-
 internal data class Rect(
     var left: Float,
     var top: Float,
