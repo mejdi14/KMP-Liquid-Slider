@@ -1,7 +1,10 @@
 package org.example.slider.library
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
 import org.example.slider.library.SliderConstants.LIQUID_BALL_TEXT_BACKGROUND_FACTOR
+import org.jetbrains.compose.resources.DrawableResource
 
 
 data class LiquidSliderConfig(
@@ -9,6 +12,8 @@ data class LiquidSliderConfig(
     val bubbleColor: Color = Color(0xFF6168E7),
     val textColor: Color = Color.Black,
     val barTextColor: Color = Color.White,
+    val imageList: List<ImageBitmap> = emptyList(),
+    val bubbleImageSizeFactor: Float = 0.8f,
     val startText: String = SliderConstants.TEXT_START,
     val endText: String = SliderConstants.TEXT_END,
     val textSize: Float = SliderConstants.TEXT_SIZE,

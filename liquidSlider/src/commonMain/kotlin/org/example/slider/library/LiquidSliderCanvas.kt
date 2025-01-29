@@ -13,6 +13,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextMeasurer
@@ -20,9 +21,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.example.slider.library.LiquidSliderConfig
+import kotlin.math.roundToInt
 
 @Composable
 internal fun BoxScope.LiquidSliderCanvas(
@@ -194,32 +198,51 @@ internal fun BoxScope.LiquidSliderCanvas(
             center = Offset(rectLabel.centerX, rectLabel.centerY)
         )
 
-        val labelString = liquidSliderConfig.bubbleText
-            ?: ((sliderPosition.value * liquidSliderConfig.progressCount).toInt()).toString()
-        val textLayoutLabel = textMeasurer.measure(
-            AnnotatedString(labelString),
-            style = textStyleBar.copy(color = liquidSliderConfig.textColor)
-        )
+        if (liquidSliderConfig.imageList.isNotEmpty()) {
+            val index = (sliderPosition.value * (liquidSliderConfig.imageList.size - 1))
+                .roundToInt()
+                .coerceIn(0, liquidSliderConfig.imageList.lastIndex)
+            val imagePainter = liquidSliderConfig.imageList[index]
+            val imageSize = labelDiameterPx * liquidSliderConfig.bubbleImageSizeFactor
 
-        val backgroundDiameter = labelDiameterPx * liquidSliderConfig.bubbleTextBackgroundSizeFactor
-        val backgroundRadius = backgroundDiameter / 2f
+            // Calculate the offset for the image
+            val imageOffsetX = rectLabel.centerX - imageSize / 2
+            val imageOffsetY = rectLabel.centerY - imageSize / 2
 
-        if (liquidSliderConfig.showBubbleTextBackground)
-        drawCircle(
-            color = liquidSliderConfig.bubbleTextBackground,
-            radius = backgroundRadius,
-            center = Offset(rectLabel.centerX, rectLabel.centerY)
-        )
+            // Use withTransform to position the image
+            drawImage(
+                image = imagePainter,
+                dstSize = IntSize(imageSize.toInt(), imageSize.toInt()),
+                dstOffset = IntOffset(imageOffsetX.toInt(), imageOffsetY.toInt()), // Positioning the image
+            )
+        } else {
+            val labelString = liquidSliderConfig.bubbleText
+                ?: ((sliderPosition.value * liquidSliderConfig.progressCount).toInt()).toString()
+            val textLayoutLabel = textMeasurer.measure(
+                AnnotatedString(labelString),
+                style = textStyleBar.copy(color = liquidSliderConfig.textColor)
+            )
 
-        drawText(
-            textMeasurer,
-            labelString,
-            topLeft = Offset(
-                x = rectLabel.centerX - textLayoutLabel.size.width / 2,
-                y = rectLabel.centerY - textLayoutLabel.size.height / 2
-            ),
-            style = textStyleBar.copy(color = liquidSliderConfig.textColor)
-        )
+            val backgroundDiameter = labelDiameterPx * liquidSliderConfig.bubbleTextBackgroundSizeFactor
+            val backgroundRadius = backgroundDiameter / 2f
+
+            if (liquidSliderConfig.showBubbleTextBackground)
+                drawCircle(
+                    color = liquidSliderConfig.bubbleTextBackground,
+                    radius = backgroundRadius,
+                    center = Offset(rectLabel.centerX, rectLabel.centerY)
+                )
+
+            drawText(
+                textMeasurer,
+                labelString,
+                topLeft = Offset(
+                    x = rectLabel.centerX - textLayoutLabel.size.width / 2,
+                    y = rectLabel.centerY - textLayoutLabel.size.height / 2
+                ),
+                style = textStyleBar.copy(color = liquidSliderConfig.textColor)
+            )
+        }
     }
 
 }
