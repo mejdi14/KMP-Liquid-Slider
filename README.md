@@ -21,12 +21,16 @@
 
 <div style="display: flex; justify-content: center; align-items: center;">
   <img 
-    src="https://raw.githubusercontent.com/mejdi14/KMP-Liquid-Slider/main/demo/banner.webp"
+    src="https://raw.githubusercontent.com/mejdi14/KMP-Liquid-Slider/main/demo/output.gif"
     height="500"
-    width="645"
+    width="445"
     style="margin-right: 20px;"
   />
 </div>
+
+## :art: inspiration
+
+This library was inspired by Ramotion's original library which i migrated to Jetpack Compose
 
 ## Installation
 
@@ -35,7 +39,7 @@ Add this to your module's `build.gradle` file:
 ```gradle
 dependencies {
     ...
-    implementation("io.github.mejdi14:KMP-Liquid-Slider:0.1.0")
+    implementation("io.github.mejdi14:KMP-Liquid-Slider:0.2.2")
 }
 ```
 
