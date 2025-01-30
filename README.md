@@ -120,8 +120,8 @@ you can make the slider switch between different images just by providing a list
     style="margin-right: 20px;"
   />
 </div>
-```kotlin
 
+```kotlin
                val myImages = listOf<ImageBitmap>(
                     imageResource(Res.drawable.cold_sweat),
                     imageResource(Res.drawable.disappointed_relieved),
