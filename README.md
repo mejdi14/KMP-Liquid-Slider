@@ -110,6 +110,7 @@ The `LiquidSliderConfig` class allows you to customize the appearance and behavi
 ---
 
 ## Use images instead
+you can make the slider switch between different images just by providing a list of images
 
 <div style="display: flex; justify-content: center; align-items: center;">
   <img 
@@ -119,9 +120,25 @@ The `LiquidSliderConfig` class allows you to customize the appearance and behavi
     style="margin-right: 20px;"
   />
 </div>
+```kotlin
+ val myImages = listOf<ImageBitmap>(
+                    imageResource(Res.drawable.cold_sweat),
+                    imageResource(Res.drawable.disappointed_relieved),
+                    imageResource(Res.drawable.neutral_face),
+                    imageResource(Res.drawable.blush),
+                    imageResource(Res.drawable.heart_eyes),
 
+                    )
+                LiquidSlider(
+                    modifier = Modifier.align(Alignment.Center),
+                    liquidSliderConfig = LiquidSliderConfig(
+                        imageList = myImages,
+                    ),
+                    onValueChange = { newValue ->
+                    },
+                )
 
-
+```
 
 If you have suggestions or feature requests, feel free to open an issue or contribute to the repository.
 
