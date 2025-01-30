@@ -109,11 +109,18 @@ The `LiquidSliderConfig` class allows you to customize the appearance and behavi
 
 ---
 
-## Upcoming Features
+## Use images instead
 
-Here's what's coming next:
+<div style="display: flex; justify-content: center; align-items: center;">
+  <img 
+    src="https://raw.githubusercontent.com/mejdi14/KMP-Liquid-Slider/main/demo/demo2.gif"
+    height="500"
+    width="445"
+    style="margin-right: 20px;"
+  />
+</div>
 
-### 🔜 Use images instead of numbers
+
 
 
 If you have suggestions or feature requests, feel free to open an issue or contribute to the repository.
