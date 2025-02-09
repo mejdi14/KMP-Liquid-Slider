@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     id("com.vanniktech.maven.publish") version "0.30.0"
+    signing
 }
 
 kotlin {
@@ -114,5 +115,12 @@ compose.desktop {
             packageName = "org.example.slider"
             packageVersion = "1.0.0"
         }
+    }
+}
+
+if ((project.findProperty("RELEASE_SIGNING_ENABLED")?.toString() ?: "false").toBoolean()) {
+    signing {
+        useGpgCmd()
+        sign(publishing.publications)
     }
 }
