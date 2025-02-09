@@ -56,6 +56,9 @@ jobs:
           VERSION_NAME=${GITHUB_REF#refs/tags/v}
           echo "Publishing version: $VERSION_NAME"
 
+          # Configure GPG to not use a terminal
+          export GPG_TTY=$(tty)
+
           ./gradlew publish \
             -PVERSION_NAME="$VERSION_NAME" \
             -PGROUP="$GROUP" \
@@ -72,4 +75,6 @@ jobs:
             -PPOM_DEVELOPER_ID="$POM_DEVELOPER_ID" \
             -PPOM_DEVELOPER_NAME="$POM_DEVELOPER_NAME" \
             -PPOM_DEVELOPER_URL="$POM_DEVELOPER_URL" \
-            -PPOM_DEVELOPER_EMAIL="$POM_DEVELOPER_EMAIL"
+            -PPOM_DEVELOPER_EMAIL="$POM_DEVELOPER_EMAIL" \
+            -Dorg.gradle.internal.publish.checksums.insecure=true \
+            -Dorg.gradle.internal.publish.signing.insecure=true
