@@ -56,9 +56,6 @@ jobs:
           VERSION_NAME=${GITHUB_REF#refs/tags/v}
           echo "Publishing version: $VERSION_NAME"
 
-          # Configure GPG to not use a terminal
-          export GPG_TTY=$(tty)
-
           ./gradlew publish \
             -PVERSION_NAME="$VERSION_NAME" \
             -PGROUP="$GROUP" \
