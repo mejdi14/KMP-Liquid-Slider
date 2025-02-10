@@ -39,8 +39,7 @@ Add this to your module's `build.gradle` file:
 ```gradle
 dependencies {
     ...
-    implementation("io.github.mejdi14:KMP-Liquid-Slider:0.2.2")
-}
+    implementation("io.github.mejdi14:KMP-Liquid-Slider:1.0.7")}
 ```
 
 ## :fire: How to Use
