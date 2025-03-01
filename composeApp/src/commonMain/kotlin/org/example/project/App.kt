@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,15 +18,8 @@ import kmp_liquid_slider.composeapp.generated.resources.cold_sweat
 import kmp_liquid_slider.composeapp.generated.resources.disappointed_relieved
 import kmp_liquid_slider.composeapp.generated.resources.heart_eyes
 import kmp_liquid_slider.composeapp.generated.resources.neutral_face
-import org.example.dropdown.data.DefaultDropdownItem
-import org.example.dropdown.data.DropdownConfig
-import org.example.dropdown.data.search.SearchSettings
-import org.example.dropdown.data.selection.ItemContentConfig
-import org.example.dropdown.data.selection.SingleItemContentConfig
 import org.example.project.library.LiquidSlider
-import org.example.project.ui.SearchableDropdown
 import org.example.slider.library.LiquidSliderConfig
-import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.imageResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -72,17 +64,6 @@ fun App() {
                 People("Sami", "Designer"),
                 People("Rami", "Product Manager"),
                 People("Balqees", "QA Tester"),
-            )
-            SearchableDropdown(
-                items = people,
-                searchSettings = SearchSettings(
-                    searchProperties = listOf(
-                        People::name,
-                        People::job,
-                    )
-                ),
-                dropdownConfig = DropdownConfig(shape = RoundedCornerShape(8.dp)),
-                itemContentConfig = SingleItemContentConfig.Default(DefaultDropdownItem<People>(title = People::name)),
             )
             Box(
                 Modifier.fillMaxWidth()
