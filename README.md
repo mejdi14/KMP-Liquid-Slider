@@ -21,7 +21,7 @@
 
 <div style="display: flex; justify-content: center; align-items: center;">
   <img 
-    src="https://raw.githubusercontent.com/mejdi14/KMP-Liquid-Slider/main/demo/output.gif"
+    src="https://raw.githubusercontent.com/mejdi14/KMP-Liquid-Slider/main/demo/output4.gif"
     height="450"
     width="345"
     style="margin-right: 20px;"
